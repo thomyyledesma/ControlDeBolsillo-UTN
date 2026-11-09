@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
+import { TipoMovimiento } from '../../core/models';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CategoriaResponse, CategoriaRequest } from '../../core/models';
@@ -9,8 +10,10 @@ export class CategoriasClient {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiUrl;
 
-  listar(): Observable<CategoriaResponse[]> {
-    return this.http.get<CategoriaResponse[]>(`${this.base}/categorias`);
+  listar(tipo?: TipoMovimiento ): Observable<CategoriaResponse[]> {
+    let params = new HttpParams();
+    if (tipo) params = params.set('tipo', tipo);
+    return this.http.get<CategoriaResponse[]>(`${this.base}/categorias`, { params });
   }
 
   crear(dto: CategoriaRequest): Observable<CategoriaResponse> {

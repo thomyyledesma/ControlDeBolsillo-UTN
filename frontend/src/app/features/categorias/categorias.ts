@@ -3,11 +3,12 @@ import { NonNullableFormBuilder, Validators, ReactiveFormsModule } from '@angula
 import { HttpError } from '../../core/http/http-error';
 import { CategoriaResponse, TipoMovimiento, CategoriaRequest } from '../../core/models';
 import { CategoriasClient } from './categorias-client';
+import { ThisReceiver } from '@angular/compiler';
 
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-categorias',
-  styleUrl: './categorias.scss',
+  styleUrl: './categorias.css',
   templateUrl: './categorias.html',
 })
 export class Categorias {
@@ -19,6 +20,7 @@ export class Categorias {
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly editandoId = signal<number | null>(null);
+  protected readonly filtroTipo = signal<'' | TipoMovimiento>('');
 
   protected readonly form = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -34,7 +36,9 @@ export class Categorias {
     this.cargando.set(true);
     this.error.set(null);
 
-    this.client.listar().subscribe({
+    const tipo = this.filtroTipo();
+
+    this.client.listar(tipo ? tipo : undefined).subscribe({
       next: (data) => {
         this.categorias.set(data);
         this.cargando.set(false);
@@ -103,6 +107,11 @@ export class Categorias {
         this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar la categoría');
       },
     });
+  }
+
+  protected cambiarFiltroTipo(valor: string): void {
+    this.filtroTipo.set(valor as '' | TipoMovimiento);
+    this.cargar();
   }
 
   private resetForm(): void {
