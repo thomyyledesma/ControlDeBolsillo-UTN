@@ -31,6 +31,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
+      {
+        path: 'movimientos',
+        title: 'Movimientos · Plata clara',
+        loadComponent: () =>
+          import('./features/movimientos/movimientos').then((m) => m.Movimientos),
+      },
       // Próximas fases: cuentas, movimientos, categorías, presupuestos, metas...
       // Las rutas Premium se protegen con roleGuard('PREMIUM').
     ],
