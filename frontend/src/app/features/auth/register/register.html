@@ -1,0 +1,62 @@
+<div class="auth-layout">
+  <aside class="auth-marca">
+    <div class="auth-marca-logo">Plata clara</div>
+    <h2 class="auth-marca-titular">
+      Empezá a ordenar<br />
+      <em>tus finanzas hoy.</em>
+    </h2>
+    <p class="auth-marca-pie">Gratis. Tus datos son solo tuyos.</p>
+  </aside>
+
+  <main class="auth-form-panel">
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <h1>Crear cuenta</h1>
+      <p class="auth-form-sub">Un par de datos y listo.</p>
+
+      @if (error(); as mensaje) {
+        <div class="alerta-error" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          autocomplete="name"
+          placeholder="Juan Pérez"
+          formControlName="nombre"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          placeholder="tu@email.com"
+          formControlName="email"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Mínimo 6 caracteres"
+          formControlName="password"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primario" [disabled]="enviando()">
+        {{ enviando() ? 'Creando…' : 'Crear cuenta' }}
+      </button>
+
+      <p class="auth-form-link">
+        ¿Ya tenés cuenta? <a routerLink="/login">Iniciar sesión</a>
+      </p>
+    </form>
+  </main>
+</div>

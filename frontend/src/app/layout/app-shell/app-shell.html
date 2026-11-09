@@ -1,0 +1,33 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">Plata clara</div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.to) {
+        <a
+          class="sidebar-link"
+          [routerLink]="item.to"
+          routerLinkActive="activo"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-nombre">{{ auth.usuario()?.nombre }}</div>
+        <div class="sidebar-user-email">{{ auth.usuario()?.email }}</div>
+        @if (auth.rol(); as rol) {
+          <div class="sidebar-user-email">Plan {{ rol === 'PREMIUM' ? 'Premium' : 'Free' }}</div>
+        }
+      </div>
+      <button type="button" class="btn-salir" (click)="salir()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="contenido">
+    <router-outlet />
+  </main>
+</div>
