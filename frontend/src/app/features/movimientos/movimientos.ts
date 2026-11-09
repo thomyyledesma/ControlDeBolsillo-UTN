@@ -3,12 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
-
 import { MovimientosClient } from './movimientos-client';
 import { TipoMovimiento } from '../../core/models';
 import { HttpError } from '../../core/http/http-error';
 import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
-
 
 @Component({
   selector: 'app-movimientos',
@@ -16,19 +14,15 @@ import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
   templateUrl: './movimientos.html',
 })
 export class Movimientos {
-  
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly api = inject(MovimientosClient);
-
 
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
-
   protected readonly movimientos = signal<any[]>([]);
   protected readonly cuentas = signal<any[]>([]);
   protected readonly categorias = signal<any[]>([]);
-
 
   protected readonly filtros = this.fb.group({
     desde: [''],
@@ -38,11 +32,7 @@ export class Movimientos {
     tipo: ['' as '' | TipoMovimiento],
   });
 
-
-
-
   private readonly filtrosValor = signal(this.filtros.getRawValue());
-
 
   protected readonly filtrados = computed(() => {
     const { desde, hasta, cuentaId, categoriaId, tipo } = this.filtrosValor();
@@ -61,10 +51,8 @@ export class Movimientos {
       .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id);
   });
 
-
   protected readonly formatearMoneda = formatearMoneda;
   protected readonly formatearFecha = formatearFecha;
-
 
   constructor() {
     this.filtros.valueChanges
@@ -83,12 +71,13 @@ export class Movimientos {
         this.cargando.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar los movimientos');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudieron cargar los movimientos',
+        );
         this.cargando.set(false);
       },
     });
   }
-
 
   protected limpiarFiltros(): void {
     this.filtros.reset({
