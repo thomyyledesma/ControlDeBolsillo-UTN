@@ -1,0 +1,17 @@
+# Node / Angular
+node_modules/
+dist/
+.angular/
+# Java / Maven
+target/
+# IDEs
+.idea/
+.vscode/
+*.iml
+# Env / secrets
+.env
+*.env.local
+application-local.properties
+# OS
+.DS_Store
+Thumbs.db
