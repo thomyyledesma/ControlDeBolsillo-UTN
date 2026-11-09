@@ -1,0 +1,13 @@
+<app-modal [titulo]="titulo()" (cerrar)="cancelar.emit()">
+    <p class="confirm-mensaje">{{ mensaje() }}</p>
+
+    <div class="modal-acciones">
+        <button type="button" class="btn btn-secundario" [disabled]="procesando()" (click)="cancelar.emit()">
+            {{ textoCancelar() }}
+        </button>
+        <button type="button" class="btn" [class.btn-peligro-lleno]="peligro()" [class.btn-primario]="!peligro()"
+            [disabled]="procesando()" (click)="confirmar.emit()">
+            {{ procesando() ? 'Procesando…' : textoConfirmar() }}
+        </button>
+    </div>
+</app-modal>
