@@ -28,14 +28,18 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         title: 'Resumen · Plata clara',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
         path: 'movimientos',
         title: 'Movimientos · Plata clara',
         loadComponent: () =>
           import('./features/movimientos/movimientos').then((m) => m.Movimientos),
+      },
+      {
+        path: 'categorias',
+        title: 'Categorías · Plata clara',
+        loadComponent: () => import('./features/categorias/categorias').then((m) => m.Categorias),
       },
       // Próximas fases: cuentas, movimientos, categorías, presupuestos, metas...
       // Las rutas Premium se protegen con roleGuard('PREMIUM').
