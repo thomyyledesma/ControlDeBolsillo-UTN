@@ -22,6 +22,7 @@ export class AppShell {
   protected readonly navItems: NavItem[] = [
     { to: '/', label: 'Resumen', exact: true },
     { to: '/movimientos', label: 'Movimientos' },
+    { to: '/categorias', label: 'Categorías' },
   ];
 
   protected salir(): void {
