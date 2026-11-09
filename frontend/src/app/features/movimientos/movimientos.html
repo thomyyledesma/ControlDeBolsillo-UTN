@@ -1,0 +1,65 @@
+<header class="contenido-header">
+  <h1>Movimientos</h1>
+  <p>Filtrá por fecha, cuenta, categoría y tipo.</p>
+</header>
+
+<form class="filtro-fechas" [formGroup]="filtros">
+  <div class="filtro-campo">
+    <label for="desde">Desde</label>
+    <input id="desde" type="date" formControlName="desde" />
+  </div>
+
+  <div class="filtro-campo">
+    <label for="hasta">Hasta</label>
+    <input id="hasta" type="date" formControlName="hasta" />
+  </div>
+
+  <div class="filtro-campo">
+    <label for="tipo">Tipo</label>
+    <select id="tipo" formControlName="tipo">
+      <option value="">Todos</option>
+      <option value="INGRESO">Ingreso</option>
+      <option value="EGRESO">Egreso</option>
+    </select>
+  </div>
+
+  <div class="filtro-campo">
+    <label for="cuentaId">Cuenta</label>
+    <select id="cuentaId" formControlName="cuentaId">
+      <option value="">Todas</option>
+      @for (c of cuentas(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filtro-campo">
+    <label for="categoriaId">Categoría</label>
+    <select id="categoriaId" formControlName="categoriaId">
+      <option value="">Todas</option>
+      @for (c of categorias(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
+      }
+    </select>
+  </div>
+
+  <button type="button" class="btn" (click)="limpiarFiltros()">Limpiar</button>
+</form>
+
+@if (cargando()) {
+  <p>Cargando movimientos...</p>
+} @else if (error(); as msg) {
+  <div class="alerta-error">{{ msg }}</div>
+} @else if (!filtrados().length) {
+  <p>No hay movimientos para esos filtros.</p>
+} @else {
+  <div class="mov-grupos">
+    @for (m of filtrados(); track m.id) {
+      <article class="card">
+        <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
+        {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
+        <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
+      </article>
+    }
+  </div>
+}

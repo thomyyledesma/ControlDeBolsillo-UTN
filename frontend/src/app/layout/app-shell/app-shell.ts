@@ -19,7 +19,10 @@ export class AppShell {
   private readonly router = inject(Router);
 
   // Se van sumando a medida que se construye cada pantalla.
-  protected readonly navItems: NavItem[] = [{ to: '/', label: 'Resumen', exact: true }];
+  protected readonly navItems: NavItem[] = [
+    { to: '/', label: 'Resumen', exact: true },
+    { to: '/movimientos', label: 'Movimientos' },
+  ];
 
   protected salir(): void {
     this.auth.logout();
