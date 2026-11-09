@@ -1,0 +1,9 @@
+<div class="modal-fondo" (click)="cerrar.emit()">
+    <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="titulo()" (click)="$event.stopPropagation()">
+        <h2>{{ titulo() }}</h2>
+        @if (subtitulo()) {
+        <p class="modal-sub">{{ subtitulo() }}</p>
+        }
+        <ng-content />
+    </div>
+</div>
