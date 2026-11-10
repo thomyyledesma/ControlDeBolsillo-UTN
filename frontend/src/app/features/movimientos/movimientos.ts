@@ -7,6 +7,7 @@ import { MovimientosClient } from './movimientos-client';
 import { MovimientoRequest, MovimientoResponse, TipoMovimiento } from '../../core/models';
 import { HttpError } from '../../core/http/http-error';
 import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-movimientos',
@@ -16,6 +17,7 @@ import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
 export class Movimientos {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly api = inject(MovimientosClient);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -75,6 +77,11 @@ export class Movimientos {
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.filtrosValor.set(this.filtros.getRawValue()));
 
+    const cuentaIdDesdeQuery = this.route.snapshot.queryParamMap.get('cuentaId');
+    if (cuentaIdDesdeQuery && !Number.isNaN(Number(cuentaIdDesdeQuery))) {
+      this.filtros.patchValue({ cuentaId: cuentaIdDesdeQuery });
+      this.filtrosValor.set(this.filtros.getRawValue());
+    }
     forkJoin({
       movimientos: this.api.listarMovimientos(),
       cuentas: this.api.listarCuentas(),
@@ -170,21 +177,23 @@ export class Movimientos {
   }
 
   protected eliminar(m: MovimientoResponse): void {
-  const ok = confirm('¿Eliminar este movimiento?');
-  if (!ok) return;
+    const ok = confirm('¿Eliminar este movimiento?');
+    if (!ok) return;
 
-  this.error.set(null);
+    this.error.set(null);
 
-  this.api.eliminarMovimiento(m.id).subscribe({
-    next: () => {
-      if (this.editandoId() === m.id) this.cancelarEdicion();
-      this.cargarDatos();
-    },
-    error: (err: unknown) => {
-      this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar el movimiento');
-    },
-  });
-}
+    this.api.eliminarMovimiento(m.id).subscribe({
+      next: () => {
+        if (this.editandoId() === m.id) this.cancelarEdicion();
+        this.cargarDatos();
+      },
+      error: (err: unknown) => {
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudo eliminar el movimiento',
+        );
+      },
+    });
+  }
 
   protected cancelarEdicion(): void {
     this.editandoId.set(null);

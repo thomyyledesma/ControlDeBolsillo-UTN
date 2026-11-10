@@ -36,6 +36,12 @@
     <h2 class="cuenta-nombre">{{ c.nombre }}</h2>
     <div class="cuenta-saldo">{{ moneda(c.saldo) }}</div>
     <div class="cuenta-acciones">
+      <a
+        class="btn btn-secundario btn-auto"
+        [routerLink]="['/movimientos']"
+        [queryParams]="{ cuentaId: c.id }">
+        Ver movimientos
+      </a>
       <button class="btn btn-secundario btn-auto cuenta-editar" type="button" (click)="abrirEditar(c)">Editar</button>
       <button class="btn btn-peligro btn-auto" type="button" (click)="pedirEliminar(c)">Eliminar</button>
     </div>
