@@ -4,10 +4,11 @@
 </header>
 
 @if (error(); as msg) {
-  <div class="alerta-error" role="alert">{{ msg }}</div>
+<div class="alerta-error" role="alert">{{ msg }}</div>
 }
 
-<form class="card" [formGroup]="formMovimiento" (ngSubmit)="registrarMovimiento()" novalidate style="padding:16px; margin-bottom:16px;">
+<form class="card" [formGroup]="formMovimiento" (ngSubmit)="registrarMovimiento()" novalidate
+  style="padding:16px; margin-bottom:16px;">
   <h3 style="margin-bottom:10px;">Registrar movimiento</h3>
 
   <div class="filtro-fechas">
@@ -16,7 +17,7 @@
       <select id="cuentaAlta" formControlName="cuentaId">
         <option value="">Seleccionar</option>
         @for (c of cuentas(); track c.id) {
-          <option [value]="c.id">{{ c.nombre }}</option>
+        <option [value]="c.id">{{ c.nombre }}</option>
         }
       </select>
     </div>
@@ -34,7 +35,7 @@
       <select id="categoriaAlta" formControlName="categoriaId">
         <option value="">Seleccionar</option>
         @for (cat of categoriasRegistro(); track cat.id) {
-          <option [value]="cat.id">{{ cat.nombre }}</option>
+        <option [value]="cat.id">{{ cat.nombre }}</option>
         }
       </select>
     </div>
@@ -58,9 +59,9 @@
   <button class="btn btn-primario" type="submit" [disabled]="guardando()">
     {{ guardando() ? 'Guardando...' : (editandoId() === null ? 'Registrar movimiento' : 'Guardar cambios') }}
   </button>
-    @if (editandoId() !== null) {
+  @if (editandoId() !== null) {
   <button class="btn" type="button" (click)="cancelarEdicion()">Cancelar edición</button>
-    } 
+  }
 </form>
 
 <form class="filtro-fechas" [formGroup]="filtros">
@@ -88,7 +89,7 @@
     <select id="cuentaId" formControlName="cuentaId">
       <option value="">Todas</option>
       @for (c of cuentas(); track c.id) {
-        <option [value]="c.id">{{ c.nombre }}</option>
+      <option [value]="c.id">{{ c.nombre }}</option>
       }
     </select>
   </div>
@@ -98,7 +99,7 @@
     <select id="categoriaId" formControlName="categoriaId">
       <option value="">Todas</option>
       @for (c of categorias(); track c.id) {
-        <option [value]="c.id">{{ c.nombre }}</option>
+      <option [value]="c.id">{{ c.nombre }}</option>
       }
     </select>
   </div>
@@ -106,24 +107,30 @@
   <button type="button" class="btn" (click)="limpiarFiltros()">Limpiar</button>
 </form>
 
+@if (filtros.controls.categoriaId.value) {
+<p style="margin: 8px 0 16px;">
+  <strong>Total acumulado:</strong> {{ formatearMoneda(totalAcumulado()) }}
+</p>
+}
+
 @if (cargando()) {
-  <p>Cargando movimientos...</p>
+<p>Cargando movimientos...</p>
 } @else if (error(); as msg) {
-  <div class="alerta-error">{{ msg }}</div>
+<div class="alerta-error">{{ msg }}</div>
 } @else if (!filtrados().length) {
-  <p>No hay movimientos para esos filtros.</p>
+<p>No hay movimientos para esos filtros.</p>
 } @else {
-  <div class="mov-grupos">
-    @for (m of filtrados(); track m.id) {
-      <article class="card">
-        <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
-        {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
-        <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
-        <div style="margin-top:8px; display:flex; gap:8px;">
-          <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
-         <button class="btn" type="button" (click)="eliminar(m)">Eliminar</button>
-        </div>
-      </article>
-    }
-  </div>
+<div class="mov-grupos">
+  @for (m of filtrados(); track m.id) {
+  <article class="card">
+    <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
+    {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
+    <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
+    <div style="margin-top:8px; display:flex; gap:8px;">
+      <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
+      <button class="btn" type="button" (click)="eliminar(m)">Eliminar</button>
+    </div>
+  </article>
+  }
+</div>
 }

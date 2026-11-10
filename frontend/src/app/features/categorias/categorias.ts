@@ -4,9 +4,10 @@ import { HttpError } from '../../core/http/http-error';
 import { CategoriaResponse, TipoMovimiento, CategoriaRequest } from '../../core/models';
 import { CategoriasClient } from './categorias-client';
 import { ThisReceiver } from '@angular/compiler';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   selector: 'app-categorias',
   styleUrl: './categorias.css',
   templateUrl: './categorias.html',
