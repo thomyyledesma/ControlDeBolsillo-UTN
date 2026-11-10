@@ -169,6 +169,23 @@ export class Movimientos {
     this.tipoRegistro.set(m.tipo);
   }
 
+  protected eliminar(m: MovimientoResponse): void {
+  const ok = confirm('¿Eliminar este movimiento?');
+  if (!ok) return;
+
+  this.error.set(null);
+
+  this.api.eliminarMovimiento(m.id).subscribe({
+    next: () => {
+      if (this.editandoId() === m.id) this.cancelarEdicion();
+      this.cargarDatos();
+    },
+    error: (err: unknown) => {
+      this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar el movimiento');
+    },
+  });
+}
+
   protected cancelarEdicion(): void {
     this.editandoId.set(null);
     this.formMovimiento.reset({
