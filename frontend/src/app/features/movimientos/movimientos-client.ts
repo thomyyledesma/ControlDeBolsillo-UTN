@@ -35,4 +35,8 @@ export class MovimientosClient {
   actualizarMovimiento(id: number, dto: MovimientoRequest): Observable<MovimientoResponse> {
     return this.http.put<MovimientoResponse>(`${this.base}/movimientos/${id}`, dto);
   }
+
+  eliminarMovimiento(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/movimientos/${id}`);
+  }
 }

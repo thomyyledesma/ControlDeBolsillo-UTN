@@ -119,7 +119,10 @@
         <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
         {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
         <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
-        <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
+         <button class="btn" type="button" (click)="eliminar(m)">Eliminar</button>
+        </div>
       </article>
     }
   </div>
