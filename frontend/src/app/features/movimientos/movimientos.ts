@@ -52,6 +52,10 @@ export class Movimientos {
     this.categorias().filter((c) => c.tipo === this.tipoRegistro()),
   );
 
+  protected readonly totalAcumulado = computed(() =>
+    this.filtrados().reduce((acc, m) => acc + Number(m.monto), 0),
+  );
+
   protected readonly filtrados = computed(() => {
     const { desde, hasta, cuentaId, categoriaId, tipo } = this.filtrosValor();
     const cuentaIdNum = cuentaId ? Number(cuentaId) : null;
@@ -77,11 +81,24 @@ export class Movimientos {
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.filtrosValor.set(this.filtros.getRawValue()));
 
-    const cuentaIdDesdeQuery = this.route.snapshot.queryParamMap.get('cuentaId');
+    const queryParams = this.route.snapshot.queryParamMap;
+    const cuentaIdDesdeQuery = queryParams.get('cuentaId');
+    const categoriaIdDesdeQuery = queryParams.get('categoriaId');
+
+    const patch: { cuentaId?: string; categoriaId?: string } = {};
+
     if (cuentaIdDesdeQuery && !Number.isNaN(Number(cuentaIdDesdeQuery))) {
-      this.filtros.patchValue({ cuentaId: cuentaIdDesdeQuery });
+      patch.cuentaId = cuentaIdDesdeQuery;
+    }
+    if (categoriaIdDesdeQuery && !Number.isNaN(Number(categoriaIdDesdeQuery))) {
+      patch.categoriaId = categoriaIdDesdeQuery;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      this.filtros.patchValue(patch);
       this.filtrosValor.set(this.filtros.getRawValue());
     }
+
     forkJoin({
       movimientos: this.api.listarMovimientos(),
       cuentas: this.api.listarCuentas(),
