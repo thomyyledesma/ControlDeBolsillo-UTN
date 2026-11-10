@@ -31,4 +31,8 @@ export class MovimientosClient {
   crearMovimiento(dto: MovimientoRequest): Observable<MovimientoResponse> {
     return this.http.post<MovimientoResponse>(`${this.base}/movimientos`, dto);
   }
+
+  actualizarMovimiento(id: number, dto: MovimientoRequest): Observable<MovimientoResponse> {
+    return this.http.put<MovimientoResponse>(`${this.base}/movimientos/${id}`, dto);
+  }
 }

@@ -4,7 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { forkJoin } from 'rxjs';
 
 import { MovimientosClient } from './movimientos-client';
-import { MovimientoRequest, TipoMovimiento } from '../../core/models';
+import { MovimientoRequest, MovimientoResponse, TipoMovimiento } from '../../core/models';
 import { HttpError } from '../../core/http/http-error';
 import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
 
@@ -20,6 +20,7 @@ export class Movimientos {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly guardando = signal(false);
+  protected readonly editandoId = signal<number | null>(null);
 
   protected readonly movimientos = signal<any[]>([]);
   protected readonly cuentas = signal<any[]>([]);
@@ -114,23 +115,18 @@ export class Movimientos {
       fecha: raw.fecha || undefined,
     };
 
-    this.api.crearMovimiento(dto).subscribe({
+    const id = this.editandoId();
+    const req$ =
+      id === null ? this.api.crearMovimiento(dto) : this.api.actualizarMovimiento(id, dto);
+
+    req$.subscribe({
       next: () => {
-        this.formMovimiento.reset({
-          cuentaId: '',
-          tipo: this.tipoRegistro(),
-          categoriaId: '',
-          monto: 0,
-          descripcion: '',
-          fecha: '',
-        });
+        this.cancelarEdicion();
         this.guardando.set(false);
         this.cargarDatos();
       },
       error: (err: unknown) => {
-        this.error.set(
-          err instanceof HttpError ? err.message : 'No se pudo registrar el movimiento',
-        );
+        this.error.set(err instanceof HttpError ? err.message : 'No se pudo guardar el movimiento');
         this.guardando.set(false);
       },
     });
@@ -157,6 +153,31 @@ export class Movimientos {
         );
         this.cargando.set(false);
       },
+    });
+  }
+
+  protected empezarEdicion(m: MovimientoResponse): void {
+    this.editandoId.set(m.id);
+    this.formMovimiento.setValue({
+      cuentaId: String(m.cuentaId),
+      tipo: m.tipo,
+      categoriaId: m.categoriaId ? String(m.categoriaId) : '',
+      monto: Number(m.monto),
+      descripcion: m.descripcion ?? '',
+      fecha: m.fecha ?? '',
+    });
+    this.tipoRegistro.set(m.tipo);
+  }
+
+  protected cancelarEdicion(): void {
+    this.editandoId.set(null);
+    this.formMovimiento.reset({
+      cuentaId: '',
+      tipo: 'EGRESO',
+      categoriaId: '',
+      monto: 0,
+      descripcion: '',
+      fecha: '',
     });
   }
 
