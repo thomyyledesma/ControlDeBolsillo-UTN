@@ -6,12 +6,14 @@ import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
@@ -27,5 +29,20 @@ public class UsuarioService {
         Usuario usuario = buscarPorEmail(email);
         usuario.setNombre(nombre);
         return usuarioRepository.save(usuario);
+    }
+
+        public void cambiarPassword(String email, String passwordActual, String passwordNueva) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (!passwordEncoder.matches(passwordActual, usuario.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+
+        if (passwordEncoder.matches(passwordNueva, usuario.getPassword())) {
+            throw new IllegalArgumentException("La contraseña nueva debe ser distinta de la actual");
+        }
+
+        usuario.setPassword(passwordEncoder.encode(passwordNueva));
+        usuarioRepository.save(usuario);
     }
 }

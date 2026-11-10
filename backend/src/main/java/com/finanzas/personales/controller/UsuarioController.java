@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.finanzas.personales.dto.request.CambiarPasswordRequestDTO;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -27,5 +29,12 @@ public class UsuarioController {
                                                @Valid @RequestBody ActualizarUsuarioRequestDTO dto) {
         Usuario actualizado = usuarioService.actualizarPerfil(usuario.getEmail(), dto.getNombre());
         return new UsuarioResponseDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getEmail());
+    }
+
+        @PutMapping("/actual/password")
+    public ResponseEntity<Void> cambiarPassword(@AuthenticationPrincipal Usuario usuario,
+                                                @Valid @RequestBody CambiarPasswordRequestDTO dto) {
+        usuarioService.cambiarPassword(usuario.getEmail(), dto.getPasswordActual(), dto.getPasswordNueva());
+        return ResponseEntity.noContent().build();
     }
 }
