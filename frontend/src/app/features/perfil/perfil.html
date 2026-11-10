@@ -1,0 +1,30 @@
+<header class="contenido-header">
+    <h1>Perfil</h1>
+    <p>Tus datos de cuenta.</p>
+</header>
+
+<form class="card perfil-card" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    @if (error(); as msg) {
+    <div class="alerta-error" role="alert">{{ msg }}</div>
+    }
+    @if (exito()) {
+    <div class="alerta-exito" role="status">Perfil actualizado.</div>
+    }
+
+    <div class="campo">
+        <label for="email">Email</label>
+        <input id="email" type="email" [value]="auth.usuario()?.email ?? ''" disabled />
+    </div>
+
+    <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+        <small class="campo-error">El nombre es obligatorio (entre 2 y 100 caracteres).</small>
+        }
+    </div>
+
+    <button class="btn btn-primario btn-auto" type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+</form>
