@@ -1,0 +1,30 @@
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.categoria-card {
+  padding: 12px;
+  border: 1px solid var(--crema-700);
+  border-radius: var(--radio);
+  background: #fff;
+}
+
+.categoria-main {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.categoria-sub {
+  margin-top: 4px;
+  color: var(--tinta-60);
+  font-size: 14px;
+}
+
+.categoria-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}

@@ -7,6 +7,15 @@
   <div class="alerta-error" role="alert">{{ msg }}</div>
 }
 
+<div class="filtro-campo" style="max-width: 220px; margin-bottom: 12px;">
+  <label for="filtroTipo">Filtrar por tipo</label>
+  <select id="filtroTipo" [value]="filtroTipo()" (change)="cambiarFiltroTipo($any($event.target).value)">
+    <option value="">Todos</option>
+    <option value="INGRESO">Ingreso</option>
+    <option value="EGRESO">Egreso</option>
+  </select>
+</div>
+
 <form class="card" [formGroup]="form" (ngSubmit)="guardar()" novalidate style="padding:16px; margin-bottom:16px;">
   <div class="campo">
     <label for="nombre">Nombre</label>
@@ -42,17 +51,22 @@
 } @else if (!categorias().length) {
   <p>No tenés categorías todavía.</p>
 } @else {
-  <div class="mov-grupos">
-    @for (c of categorias(); track c.id) {
-      <article class="card" style="padding:12px;">
-        <strong>{{ c.nombre }}</strong> — {{ c.tipo }}<br />
-        Movimientos asociados: {{ c.cantidadMovimientos }}
+  <div class="categorias-grid">
+  @for (c of categorias(); track c.id) {
+    <article class="categoria-card">
+      <div class="categoria-main">
+        <span>{{ c.icono || '🏷️' }}</span>
+        <strong>{{ c.nombre }}</strong>
+        <span>— {{ c.tipo }}</span>
+      </div>
 
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="btn" type="button" (click)="empezarEdicion(c)">Editar</button>
-          <button class="btn" type="button" (click)="eliminar(c)">Eliminar</button>
-        </div>
-      </article>
-    }
-  </div>
+      <div class="categoria-sub">Movimientos asociados: {{ c.cantidadMovimientos }}</div>
+
+      <div class="categoria-actions">
+        <button class="btn" type="button" (click)="empezarEdicion(c)">Editar</button>
+        <button class="btn" type="button" (click)="eliminar(c)">Eliminar</button>
+      </div>
+    </article>
+  }
+</div>
 }
