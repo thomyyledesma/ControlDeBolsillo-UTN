@@ -56,8 +56,11 @@
   </div>
 
   <button class="btn btn-primario" type="submit" [disabled]="guardando()">
-    {{ guardando() ? 'Guardando...' : 'Registrar movimiento' }}
+    {{ guardando() ? 'Guardando...' : (editandoId() === null ? 'Registrar movimiento' : 'Guardar cambios') }}
   </button>
+    @if (editandoId() !== null) {
+  <button class="btn" type="button" (click)="cancelarEdicion()">Cancelar edición</button>
+    } 
 </form>
 
 <form class="filtro-fechas" [formGroup]="filtros">
@@ -116,6 +119,7 @@
         <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
         {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
         <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
+        <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
       </article>
     }
   </div>
