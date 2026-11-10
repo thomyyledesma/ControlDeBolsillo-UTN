@@ -13,8 +13,7 @@ export type TipoCuenta =
   | "EFECTIVO"
   | "BANCO"
   | "BILLETERA_VIRTUAL"
-  | "INVERSION"
-  | "TARJETA_CREDITO"; // si la sacaste del enum en Java, borrá esta línea
+  | "INVERSION";
 
 // --- Auth ---
 export interface RegisterRequest {

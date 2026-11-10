@@ -1,0 +1,26 @@
+<header class="contenido-header">
+  <h1>Cuentas</h1>
+  <p>Acá ves dónde tenés tu plata y cuánto hay en cada lugar.</p>
+</header>
+
+@if (error(); as msg) {
+  <div class="alerta-error" role="alert">{{ msg }}</div>
+}
+
+@if (cargando()) {
+  <p>Cargando cuentas...</p>
+} @else if (cuentas().length === 0 && !error()) {
+  <div class="card cuentas-vacio">
+    <p>Todavía no tenés cuentas.</p>
+  </div>
+} @else {
+  <div class="cuentas-grid">
+    @for (c of cuentas(); track c.id) {
+      <article class="cuenta-card">
+        <div class="cuenta-tipo">{{ tipo(c.tipoCuenta) }}</div>
+        <h2 class="cuenta-nombre">{{ c.nombre }}</h2>
+        <div class="cuenta-saldo">{{ moneda(c.saldo) }}</div>
+      </article>
+    }
+  </div>
+}

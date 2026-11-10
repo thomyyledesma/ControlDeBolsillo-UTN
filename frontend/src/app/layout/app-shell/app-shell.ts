@@ -21,6 +21,7 @@ export class AppShell {
   // Se van sumando a medida que se construye cada pantalla.
   protected readonly navItems: NavItem[] = [
     { to: '/', label: 'Resumen', exact: true },
+    { to: '/cuentas', label: 'Cuentas' },
     { to: '/movimientos', label: 'Movimientos' },
     { to: '/categorias', label: 'Categorías' },
   ];

@@ -41,6 +41,11 @@ export const routes: Routes = [
         title: 'Categorías · Plata clara',
         loadComponent: () => import('./features/categorias/categorias').then((m) => m.Categorias),
       },
+      {
+        path: 'cuentas',
+        title: 'Cuentas · Plata clara',
+        loadComponent: () => import('./features/cuentas/cuentas').then((m) => m.Cuentas),
+      },
       // Próximas fases: cuentas, movimientos, categorías, presupuestos, metas...
       // Las rutas Premium se protegen con roleGuard('PREMIUM').
     ],
