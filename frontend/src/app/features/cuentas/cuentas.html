@@ -3,10 +3,20 @@
     <h1>Cuentas</h1>
     <p>Acá ves dónde tenés tu plata y cuánto hay en cada lugar.</p>
   </div>
-  <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
-    Nueva cuenta
-  </button>
+  <div class="acciones-header">
+    <button class="btn btn-secundario btn-auto" type="button" [disabled]="cuentasActivas().length < 2"
+      (click)="abrirTransferencia()">
+      Transferir
+    </button>
+    <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
+      Nueva cuenta
+    </button>
+  </div>
 </header>
+
+@if (exito(); as msg) {
+<div class="alerta-exito" role="status">{{ msg }}</div>
+}
 
 @if (error(); as msg) {
 <div class="alerta-error" role="alert">{{ msg }}</div>
@@ -87,4 +97,58 @@
   [mensaje]="'¿Seguro que querés eliminar «' + cuenta.nombre + '»? Esta acción no se puede deshacer.'"
   textoConfirmar="Eliminar" [peligro]="true" [procesando]="eliminando()" (confirmar)="confirmarEliminar()"
   (cancelar)="cancelarEliminar()" />
+}
+
+@if (mostrandoTransferencia()) {
+<app-modal titulo="Transferir entre cuentas" subtitulo="Mové plata de una cuenta tuya a otra."
+  (cerrar)="cerrarTransferencia()">
+  <form [formGroup]="transferForm" (ngSubmit)="transferir()" novalidate>
+    @if (errorTransferencia(); as msg) {
+    <div class="alerta-error" role="alert">{{ msg }}</div>
+    }
+
+    <div class="campo">
+      <label for="origen">Desde</label>
+      <select id="origen" formControlName="cuentaOrigenId">
+        <option [ngValue]="0" disabled>Elegí una cuenta</option>
+        @for (c of cuentasActivas(); track c.id) {
+        <option [ngValue]="c.id">{{ c.nombre }} ({{ moneda(c.saldo) }})</option>
+        }
+      </select>
+      @if (transferForm.controls.cuentaOrigenId.touched && transferForm.controls.cuentaOrigenId.invalid) {
+      <small class="campo-error">Elegí la cuenta de origen.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="destino">Hacia</label>
+      <select id="destino" formControlName="cuentaDestinoId">
+        <option [ngValue]="0" disabled>Elegí una cuenta</option>
+        @for (c of cuentasActivas(); track c.id) {
+        <option [ngValue]="c.id">{{ c.nombre }} ({{ moneda(c.saldo) }})</option>
+        }
+      </select>
+      @if (transferForm.controls.cuentaDestinoId.touched && transferForm.controls.cuentaDestinoId.invalid) {
+      <small class="campo-error">Elegí la cuenta de destino.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="monto">Monto</label>
+      <input id="monto" type="number" min="0.01" step="0.01" formControlName="monto" />
+      @if (transferForm.controls.monto.touched && transferForm.controls.monto.invalid) {
+      <small class="campo-error">El monto debe ser mayor a cero.</small>
+      }
+    </div>
+
+    <div class="modal-acciones">
+      <button class="btn btn-secundario" type="button" (click)="cerrarTransferencia()" [disabled]="transfiriendo()">
+        Cancelar
+      </button>
+      <button class="btn btn-primario" type="submit" [disabled]="transfiriendo()">
+        {{ transfiriendo() ? 'Transfiriendo...' : 'Transferir' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
 }
