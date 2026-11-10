@@ -21,4 +21,8 @@ export class CuentasClient {
   actualizar(id: number, dto: CuentaUpdateRequest): Observable<CuentaResponse> {
     return this.http.put<CuentaResponse>(`${this.base}/cuentas/${id}`, dto);
   }
+
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/cuentas/${id}`);
+  }
 }

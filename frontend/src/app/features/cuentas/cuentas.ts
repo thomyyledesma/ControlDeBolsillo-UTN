@@ -3,12 +3,13 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 
 import { HttpError } from '../../core/http/http-error';
 import { CuentaResponse, TipoCuenta } from '../../core/models';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { Modal } from '../../shared/components/modal/modal';
 import { formatearMoneda, formatearTipoCuenta } from '../../shared/utils/format';
 import { CuentasClient } from './cuentas-client';
 
 @Component({
-  imports: [ReactiveFormsModule, Modal],
+  imports: [ReactiveFormsModule, Modal, ConfirmDialog],
   selector: 'app-cuentas',
   styleUrl: './cuentas.css',
   templateUrl: './cuentas.html',
@@ -26,6 +27,8 @@ export class Cuentas {
   protected readonly guardando = signal(false);
   protected readonly errorForm = signal<string | null>(null);
   protected readonly editandoId = signal<number | null>(null);
+  protected readonly cuentaAEliminar = signal<CuentaResponse | null>(null);
+  protected readonly eliminando = signal(false);
 
   protected readonly tipos: TipoCuenta[] = ['EFECTIVO', 'BANCO', 'BILLETERA_VIRTUAL', 'INVERSION'];
 
@@ -106,6 +109,36 @@ export class Cuentas {
       error: (err: unknown) => {
         this.errorForm.set(err instanceof HttpError ? err.message : 'No se pudo guardar la cuenta');
         this.guardando.set(false);
+      },
+    });
+  }
+
+  protected pedirEliminar(cuenta: CuentaResponse): void {
+    this.error.set(null);
+    this.cuentaAEliminar.set(cuenta);
+  }
+
+  protected cancelarEliminar(): void {
+    if (this.eliminando()) return;
+    this.cuentaAEliminar.set(null);
+  }
+
+  protected confirmarEliminar(): void {
+    const cuenta = this.cuentaAEliminar();
+    if (!cuenta) return;
+
+    this.eliminando.set(true);
+
+    this.client.eliminar(cuenta.id).subscribe({
+      next: () => {
+        this.eliminando.set(false);
+        this.cuentaAEliminar.set(null);
+        this.cargar();
+      },
+      error: (err: unknown) => {
+        this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar la cuenta');
+        this.eliminando.set(false);
+        this.cuentaAEliminar.set(null);
       },
     });
   }

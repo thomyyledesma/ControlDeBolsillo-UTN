@@ -25,9 +25,10 @@
     <div class="cuenta-tipo">{{ tipo(c.tipoCuenta) }}</div>
     <h2 class="cuenta-nombre">{{ c.nombre }}</h2>
     <div class="cuenta-saldo">{{ moneda(c.saldo) }}</div>
-    <button class="btn btn-secundario btn-auto cuenta-editar" type="button" (click)="abrirEditar(c)">
-      Editar
-    </button>
+    <div class="cuenta-acciones">
+      <button class="btn btn-secundario btn-auto cuenta-editar" type="button" (click)="abrirEditar(c)">Editar</button>
+      <button class="btn btn-peligro btn-auto" type="button" (click)="pedirEliminar(c)">Eliminar</button>
+    </div>
   </article>
   }
 </div>
@@ -79,4 +80,11 @@
     </div>
   </form>
 </app-modal>
+}
+
+@if (cuentaAEliminar(); as cuenta) {
+<app-confirm-dialog titulo="Eliminar cuenta"
+  [mensaje]="'¿Seguro que querés eliminar «' + cuenta.nombre + '»? Esta acción no se puede deshacer.'"
+  textoConfirmar="Eliminar" [peligro]="true" [procesando]="eliminando()" (confirmar)="confirmarEliminar()"
+  (cancelar)="cancelarEliminar()" />
 }
