@@ -3,6 +3,63 @@
   <p>Filtrá por fecha, cuenta, categoría y tipo.</p>
 </header>
 
+@if (error(); as msg) {
+  <div class="alerta-error" role="alert">{{ msg }}</div>
+}
+
+<form class="card" [formGroup]="formMovimiento" (ngSubmit)="registrarMovimiento()" novalidate style="padding:16px; margin-bottom:16px;">
+  <h3 style="margin-bottom:10px;">Registrar movimiento</h3>
+
+  <div class="filtro-fechas">
+    <div class="filtro-campo">
+      <label for="cuentaAlta">Cuenta</label>
+      <select id="cuentaAlta" formControlName="cuentaId">
+        <option value="">Seleccionar</option>
+        @for (c of cuentas(); track c.id) {
+          <option [value]="c.id">{{ c.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filtro-campo">
+      <label for="tipoAlta">Tipo</label>
+      <select id="tipoAlta" formControlName="tipo">
+        <option value="INGRESO">Ingreso</option>
+        <option value="EGRESO">Egreso</option>
+      </select>
+    </div>
+
+    <div class="filtro-campo">
+      <label for="categoriaAlta">Categoría</label>
+      <select id="categoriaAlta" formControlName="categoriaId">
+        <option value="">Seleccionar</option>
+        @for (cat of categoriasRegistro(); track cat.id) {
+          <option [value]="cat.id">{{ cat.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filtro-campo">
+      <label for="montoAlta">Monto</label>
+      <input id="montoAlta" type="number" min="0.01" step="0.01" formControlName="monto" />
+    </div>
+
+    <div class="filtro-campo">
+      <label for="fechaAlta">Fecha</label>
+      <input id="fechaAlta" type="date" formControlName="fecha" />
+    </div>
+  </div>
+
+  <div class="campo">
+    <label for="descripcionAlta">Descripción (opcional)</label>
+    <input id="descripcionAlta" type="text" formControlName="descripcion" />
+  </div>
+
+  <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+    {{ guardando() ? 'Guardando...' : 'Registrar movimiento' }}
+  </button>
+</form>
+
 <form class="filtro-fechas" [formGroup]="filtros">
   <div class="filtro-campo">
     <label for="desde">Desde</label>

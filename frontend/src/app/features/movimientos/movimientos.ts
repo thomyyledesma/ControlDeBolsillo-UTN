@@ -1,10 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
 import { MovimientosClient } from './movimientos-client';
-import { TipoMovimiento } from '../../core/models';
+import { MovimientoRequest, TipoMovimiento } from '../../core/models';
 import { HttpError } from '../../core/http/http-error';
 import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
 
@@ -19,6 +19,7 @@ export class Movimientos {
 
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly guardando = signal(false);
 
   protected readonly movimientos = signal<any[]>([]);
   protected readonly cuentas = signal<any[]>([]);
@@ -32,7 +33,21 @@ export class Movimientos {
     tipo: ['' as '' | TipoMovimiento],
   });
 
+  protected readonly formMovimiento = this.fb.group({
+    cuentaId: ['', [Validators.required]],
+    tipo: ['EGRESO' as TipoMovimiento, [Validators.required]],
+    categoriaId: ['', [Validators.required]],
+    monto: [0, [Validators.required, Validators.min(0.01)]],
+    descripcion: ['', [Validators.maxLength(200)]],
+    fecha: [''],
+  });
+
   private readonly filtrosValor = signal(this.filtros.getRawValue());
+  private readonly tipoRegistro = signal<TipoMovimiento>('EGRESO');
+
+  protected readonly categoriasRegistro = computed(() =>
+    this.categorias().filter((c) => c.tipo === this.tipoRegistro()),
+  );
 
   protected readonly filtrados = computed(() => {
     const { desde, hasta, cuentaId, categoriaId, tipo } = this.filtrosValor();
@@ -58,6 +73,72 @@ export class Movimientos {
     this.filtros.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.filtrosValor.set(this.filtros.getRawValue()));
+
+    forkJoin({
+      movimientos: this.api.listarMovimientos(),
+      cuentas: this.api.listarCuentas(),
+      categorias: this.api.listarCategorias(),
+    }).subscribe({
+      next: ({ movimientos, cuentas, categorias }) => {
+        this.movimientos.set(movimientos);
+        this.cuentas.set(cuentas);
+        this.categorias.set(categorias);
+        this.cargando.set(false);
+      },
+      error: (err: unknown) => {
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudieron cargar los movimientos',
+        );
+        this.cargando.set(false);
+      },
+    });
+  }
+
+  protected registrarMovimiento(): void {
+    if (this.formMovimiento.invalid) {
+      this.formMovimiento.markAllAsTouched();
+      return;
+    }
+
+    this.error.set(null);
+    this.guardando.set(true);
+
+    const raw = this.formMovimiento.getRawValue();
+
+    const dto: MovimientoRequest = {
+      cuentaId: Number(raw.cuentaId),
+      categoriaId: Number(raw.categoriaId),
+      tipo: raw.tipo,
+      monto: Number(raw.monto),
+      descripcion: raw.descripcion?.trim() || undefined,
+      fecha: raw.fecha || undefined,
+    };
+
+    this.api.crearMovimiento(dto).subscribe({
+      next: () => {
+        this.formMovimiento.reset({
+          cuentaId: '',
+          tipo: this.tipoRegistro(),
+          categoriaId: '',
+          monto: 0,
+          descripcion: '',
+          fecha: '',
+        });
+        this.guardando.set(false);
+        this.cargarDatos();
+      },
+      error: (err: unknown) => {
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudo registrar el movimiento',
+        );
+        this.guardando.set(false);
+      },
+    });
+  }
+
+  private cargarDatos(): void {
+    this.cargando.set(true);
+    this.error.set(null);
 
     forkJoin({
       movimientos: this.api.listarMovimientos(),
