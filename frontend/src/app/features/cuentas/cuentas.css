@@ -29,3 +29,10 @@
 .cuentas-vacio {
   padding: 16px;
 }
+
+.campo-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #b3261e;
+}

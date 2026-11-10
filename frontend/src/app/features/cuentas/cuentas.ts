@@ -1,21 +1,39 @@
 import { Component, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { HttpError } from '../../core/http/http-error';
-import { CuentaResponse } from '../../core/models';
+import { CuentaResponse, TipoCuenta } from '../../core/models';
+import { Modal } from '../../shared/components/modal/modal';
 import { formatearMoneda, formatearTipoCuenta } from '../../shared/utils/format';
 import { CuentasClient } from './cuentas-client';
 
 @Component({
+  imports: [ReactiveFormsModule, Modal],
   selector: 'app-cuentas',
   styleUrl: './cuentas.css',
   templateUrl: './cuentas.html',
 })
 export class Cuentas {
   private readonly client = inject(CuentasClient);
+  private readonly fb = inject(NonNullableFormBuilder);
 
   protected readonly cuentas = signal<CuentaResponse[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  // Estado del modal "Nueva cuenta"
+  protected readonly mostrandoForm = signal(false);
+  protected readonly guardando = signal(false);
+  protected readonly errorForm = signal<string | null>(null);
+
+  protected readonly tipos: TipoCuenta[] = ['EFECTIVO', 'BANCO', 'BILLETERA_VIRTUAL', 'INVERSION'];
+
+  // Mismas reglas que valida el backend en CuentaRequestDTO.
+  protected readonly form = this.fb.group({
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    saldo: [0, [Validators.required, Validators.min(0)]],
+    tipoCuenta: ['EFECTIVO' as TipoCuenta, [Validators.required]],
+  });
 
   protected readonly moneda = formatearMoneda;
   protected readonly tipo = formatearTipoCuenta;
@@ -36,6 +54,39 @@ export class Cuentas {
       error: (err: unknown) => {
         this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar las cuentas');
         this.cargando.set(false);
+      },
+    });
+  }
+
+  protected abrirForm(): void {
+    this.form.reset({ nombre: '', saldo: 0, tipoCuenta: 'EFECTIVO' });
+    this.errorForm.set(null);
+    this.mostrandoForm.set(true);
+  }
+
+  protected cerrarForm(): void {
+    if (this.guardando()) return;
+    this.mostrandoForm.set(false);
+  }
+
+  protected guardar(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.guardando.set(true);
+    this.errorForm.set(null);
+
+    this.client.crear(this.form.getRawValue()).subscribe({
+      next: () => {
+        this.guardando.set(false);
+        this.mostrandoForm.set(false);
+        this.cargar();
+      },
+      error: (err: unknown) => {
+        this.errorForm.set(err instanceof HttpError ? err.message : 'No se pudo crear la cuenta');
+        this.guardando.set(false);
       },
     });
   }
