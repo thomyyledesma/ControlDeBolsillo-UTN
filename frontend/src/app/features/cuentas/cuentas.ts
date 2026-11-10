@@ -25,6 +25,7 @@ export class Cuentas {
   protected readonly mostrandoForm = signal(false);
   protected readonly guardando = signal(false);
   protected readonly errorForm = signal<string | null>(null);
+  protected readonly editandoId = signal<number | null>(null);
 
   protected readonly tipos: TipoCuenta[] = ['EFECTIVO', 'BANCO', 'BILLETERA_VIRTUAL', 'INVERSION'];
 
@@ -52,14 +53,24 @@ export class Cuentas {
         this.cargando.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar las cuentas');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudieron cargar las cuentas',
+        );
         this.cargando.set(false);
       },
     });
   }
 
   protected abrirForm(): void {
+    this.editandoId.set(null);
     this.form.reset({ nombre: '', saldo: 0, tipoCuenta: 'EFECTIVO' });
+    this.errorForm.set(null);
+    this.mostrandoForm.set(true);
+  }
+
+  protected abrirEditar(cuenta: CuentaResponse): void {
+    this.editandoId.set(cuenta.id);
+    this.form.reset({ nombre: cuenta.nombre, saldo: cuenta.saldo, tipoCuenta: cuenta.tipoCuenta });
     this.errorForm.set(null);
     this.mostrandoForm.set(true);
   }
@@ -78,14 +89,22 @@ export class Cuentas {
     this.guardando.set(true);
     this.errorForm.set(null);
 
-    this.client.crear(this.form.getRawValue()).subscribe({
+    const { nombre, saldo, tipoCuenta } = this.form.getRawValue();
+    const id = this.editandoId();
+
+    const peticion =
+      id === null
+        ? this.client.crear({ nombre, saldo, tipoCuenta })
+        : this.client.actualizar(id, { nombre, tipoCuenta });
+
+    peticion.subscribe({
       next: () => {
         this.guardando.set(false);
         this.mostrandoForm.set(false);
         this.cargar();
       },
       error: (err: unknown) => {
-        this.errorForm.set(err instanceof HttpError ? err.message : 'No se pudo crear la cuenta');
+        this.errorForm.set(err instanceof HttpError ? err.message : 'No se pudo guardar la cuenta');
         this.guardando.set(false);
       },
     });

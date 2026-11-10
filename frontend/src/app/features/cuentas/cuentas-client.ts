@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { CuentaRequest, CuentaResponse } from '../../core/models';
+import { CuentaRequest, CuentaResponse, CuentaUpdateRequest } from '../../core/models';
 
 @Service()
 export class CuentasClient {
@@ -16,5 +16,9 @@ export class CuentasClient {
 
   crear(dto: CuentaRequest): Observable<CuentaResponse> {
     return this.http.post<CuentaResponse>(`${this.base}/cuentas`, dto);
+  }
+
+  actualizar(id: number, dto: CuentaUpdateRequest): Observable<CuentaResponse> {
+    return this.http.put<CuentaResponse>(`${this.base}/cuentas/${id}`, dto);
   }
 }
