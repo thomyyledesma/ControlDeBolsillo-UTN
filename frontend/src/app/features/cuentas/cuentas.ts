@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { HttpError } from '../../core/http/http-error';
@@ -29,6 +29,12 @@ export class Cuentas {
   protected readonly editandoId = signal<number | null>(null);
   protected readonly cuentaAEliminar = signal<CuentaResponse | null>(null);
   protected readonly eliminando = signal(false);
+  protected readonly mostrandoTransferencia = signal(false);
+  protected readonly transfiriendo = signal(false);
+  protected readonly errorTransferencia = signal<string | null>(null);
+  protected readonly exito = signal<string | null>(null);
+
+  protected readonly cuentasActivas = computed(() => this.cuentas().filter((c) => c.activa));
 
   protected readonly tipos: TipoCuenta[] = ['EFECTIVO', 'BANCO', 'BILLETERA_VIRTUAL', 'INVERSION'];
 
@@ -37,6 +43,12 @@ export class Cuentas {
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     saldo: [0, [Validators.required, Validators.min(0)]],
     tipoCuenta: ['EFECTIVO' as TipoCuenta, [Validators.required]],
+  });
+
+  protected readonly transferForm = this.fb.group({
+    cuentaOrigenId: [0, [Validators.min(1)]],
+    cuentaDestinoId: [0, [Validators.min(1)]],
+    monto: [0, [Validators.required, Validators.min(0.01)]],
   });
 
   protected readonly moneda = formatearMoneda;
@@ -139,6 +151,50 @@ export class Cuentas {
         this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar la cuenta');
         this.eliminando.set(false);
         this.cuentaAEliminar.set(null);
+      },
+    });
+  }
+
+  protected abrirTransferencia(): void {
+    this.transferForm.reset({ cuentaOrigenId: 0, cuentaDestinoId: 0, monto: 0 });
+    this.errorTransferencia.set(null);
+    this.exito.set(null);
+    this.mostrandoTransferencia.set(true);
+  }
+
+  protected cerrarTransferencia(): void {
+    if (this.transfiriendo()) return;
+    this.mostrandoTransferencia.set(false);
+  }
+
+  protected transferir(): void {
+    if (this.transferForm.invalid) {
+      this.transferForm.markAllAsTouched();
+      return;
+    }
+
+    const dto = this.transferForm.getRawValue();
+
+    if (dto.cuentaOrigenId === dto.cuentaDestinoId) {
+      this.errorTransferencia.set('La cuenta de origen y la de destino deben ser distintas');
+      return;
+    }
+
+    this.transfiriendo.set(true);
+    this.errorTransferencia.set(null);
+
+    this.client.transferir(dto).subscribe({
+      next: () => {
+        this.transfiriendo.set(false);
+        this.mostrandoTransferencia.set(false);
+        this.exito.set('Transferencia realizada correctamente.');
+        this.cargar();
+      },
+      error: (err: unknown) => {
+        this.errorTransferencia.set(
+          err instanceof HttpError ? err.message : 'No se pudo realizar la transferencia',
+        );
+        this.transfiriendo.set(false);
       },
     });
   }

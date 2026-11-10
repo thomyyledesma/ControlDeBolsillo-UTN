@@ -42,3 +42,9 @@
   gap: 8px;
   margin-top: 12px;
 }
+
+.acciones-header {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

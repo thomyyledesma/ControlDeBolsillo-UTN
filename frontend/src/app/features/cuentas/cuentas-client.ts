@@ -3,7 +3,12 @@ import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { CuentaRequest, CuentaResponse, CuentaUpdateRequest } from '../../core/models';
+import {
+  CuentaRequest,
+  CuentaResponse,
+  CuentaUpdateRequest,
+  TransferenciaRequest,
+} from '../../core/models';
 
 @Service()
 export class CuentasClient {
@@ -24,5 +29,9 @@ export class CuentasClient {
 
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/cuentas/${id}`);
+  }
+
+  transferir(dto: TransferenciaRequest): Observable<string> {
+    return this.http.post(`${this.base}/cuentas/transferir`, dto, { responseType: 'text' });
   }
 }
