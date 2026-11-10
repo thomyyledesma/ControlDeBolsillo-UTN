@@ -28,3 +28,43 @@
         {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
     </button>
 </form>
+
+<form class="card perfil-card" [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()" novalidate>
+    <h2 class="perfil-subtitulo">Cambiar contraseña</h2>
+
+    @if (errorPassword(); as msg) {
+    <div class="alerta-error" role="alert">{{ msg }}</div>
+    }
+    @if (exitoPassword()) {
+    <div class="alerta-exito" role="status">Contraseña actualizada.</div>
+    }
+
+    <div class="campo">
+        <label for="passwordActual">Contraseña actual</label>
+        <input id="passwordActual" type="password" autocomplete="current-password" formControlName="passwordActual" />
+        @if (passwordForm.controls.passwordActual.touched && passwordForm.controls.passwordActual.invalid) {
+        <small class="campo-error">Ingresá tu contraseña actual.</small>
+        }
+    </div>
+
+    <div class="campo">
+        <label for="passwordNueva">Contraseña nueva</label>
+        <input id="passwordNueva" type="password" autocomplete="new-password" formControlName="passwordNueva" />
+        @if (passwordForm.controls.passwordNueva.touched && passwordForm.controls.passwordNueva.invalid) {
+        <small class="campo-error">La contraseña debe tener al menos 6 caracteres.</small>
+        }
+    </div>
+
+    <div class="campo">
+        <label for="passwordConfirmacion">Repetir contraseña nueva</label>
+        <input id="passwordConfirmacion" type="password" autocomplete="new-password"
+            formControlName="passwordConfirmacion" />
+        @if (passwordForm.controls.passwordConfirmacion.touched && passwordForm.controls.passwordConfirmacion.invalid) {
+        <small class="campo-error">Repetí la contraseña nueva.</small>
+        }
+    </div>
+
+    <button class="btn btn-primario btn-auto" type="submit" [disabled]="guardandoPassword()">
+        {{ guardandoPassword() ? 'Guardando...' : 'Cambiar contraseña' }}
+    </button>
+</form>

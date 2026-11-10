@@ -4,16 +4,12 @@
 // ============================================================
 
 // --- Enums (deben coincidir con los del backend) ---
-export type TipoMovimiento = "INGRESO" | "EGRESO";
+export type TipoMovimiento = 'INGRESO' | 'EGRESO';
 
 // Rol del usuario (lo agrega el backend en el JWT y en /usuarios/actual)
-export type Rol = "FREE" | "PREMIUM";
+export type Rol = 'FREE' | 'PREMIUM';
 
-export type TipoCuenta =
-  | "EFECTIVO"
-  | "BANCO"
-  | "BILLETERA_VIRTUAL"
-  | "INVERSION";
+export type TipoCuenta = 'EFECTIVO' | 'BANCO' | 'BILLETERA_VIRTUAL' | 'INVERSION';
 
 // --- Auth ---
 export interface RegisterRequest {
@@ -42,6 +38,11 @@ export interface UsuarioResponse {
 
 export interface ActualizarUsuarioRequest {
   nombre: string;
+}
+
+export interface CambiarPasswordRequest {
+  passwordActual: string;
+  passwordNueva: string;
 }
 
 // --- Cuenta ---

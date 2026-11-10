@@ -1,6 +1,12 @@
 .perfil-card {
   max-width: 440px;
   padding: 20px;
+  margin-bottom: 16px;
+}
+
+.perfil-subtitulo {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
 }
 
 .campo-error {
