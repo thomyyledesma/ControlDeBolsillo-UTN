@@ -7,9 +7,10 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
 import { Modal } from '../../shared/components/modal/modal';
 import { formatearMoneda, formatearTipoCuenta } from '../../shared/utils/format';
 import { CuentasClient } from './cuentas-client';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  imports: [ReactiveFormsModule, Modal, ConfirmDialog],
+  imports: [ReactiveFormsModule, Modal, ConfirmDialog, RouterLink],
   selector: 'app-cuentas',
   styleUrl: './cuentas.css',
   templateUrl: './cuentas.html',
