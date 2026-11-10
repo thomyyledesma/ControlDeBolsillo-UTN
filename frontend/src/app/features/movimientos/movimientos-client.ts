@@ -4,7 +4,12 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { CategoriaResponse, CuentaResponse, MovimientoResponse } from '../../core/models';
+import {
+  CategoriaResponse,
+  CuentaResponse,
+  MovimientoRequest,
+  MovimientoResponse,
+} from '../../core/models';
 
 @Service()
 export class MovimientosClient {
@@ -21,5 +26,9 @@ export class MovimientosClient {
 
   listarCategorias(): Observable<CategoriaResponse[]> {
     return this.http.get<CategoriaResponse[]>(`${this.base}/categorias`);
+  }
+
+  crearMovimiento(dto: MovimientoRequest): Observable<MovimientoResponse> {
+    return this.http.post<MovimientoResponse>(`${this.base}/movimientos`, dto);
   }
 }
