@@ -1,6 +1,11 @@
-<header class="contenido-header">
-  <h1>Cuentas</h1>
-  <p>Acá ves dónde tenés tu plata y cuánto hay en cada lugar.</p>
+<header class="header-con-accion">
+  <div class="contenido-header">
+    <h1>Cuentas</h1>
+    <p>Acá ves dónde tenés tu plata y cuánto hay en cada lugar.</p>
+  </div>
+  <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
+    Nueva cuenta
+  </button>
 </header>
 
 @if (error(); as msg) {
@@ -23,4 +28,52 @@
       </article>
     }
   </div>
+}
+
+@if (mostrandoForm()) {
+  <app-modal
+    titulo="Nueva cuenta"
+    subtitulo="Cargá el nombre, el tipo y cuánta plata tiene hoy."
+    (cerrar)="cerrarForm()"
+  >
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      @if (errorForm(); as msg) {
+        <div class="alerta-error" role="alert">{{ msg }}</div>
+      }
+
+      <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" placeholder="Ej: Efectivo, Banco Nación" formControlName="nombre" />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small class="campo-error">El nombre es obligatorio (entre 2 y 100 caracteres).</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="tipoCuenta">Tipo</label>
+        <select id="tipoCuenta" formControlName="tipoCuenta">
+          @for (t of tipos; track t) {
+            <option [value]="t">{{ tipo(t) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="saldo">Saldo inicial</label>
+        <input id="saldo" type="number" min="0" step="0.01" formControlName="saldo" />
+        @if (form.controls.saldo.touched && form.controls.saldo.invalid) {
+          <small class="campo-error">El saldo es obligatorio y no puede ser negativo.</small>
+        }
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Crear cuenta' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
 }
