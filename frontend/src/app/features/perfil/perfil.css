@@ -1,0 +1,11 @@
+.perfil-card {
+  max-width: 440px;
+  padding: 20px;
+}
+
+.campo-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #b3261e;
+}

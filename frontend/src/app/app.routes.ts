@@ -4,7 +4,6 @@ import { authGuard, guestGuard } from './core/auth/auth.guard';
 import { AppShell } from './layout/app-shell/app-shell';
 
 export const routes: Routes = [
-  // --- Rutas públicas (si ya hay sesión, redirigen al resumen) ---
   {
     path: 'login',
     canActivate: [guestGuard],
@@ -18,7 +17,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
 
-  // --- Rutas protegidas: requieren sesión y se muestran dentro del layout ---
   {
     path: '',
     component: AppShell,
@@ -46,8 +44,11 @@ export const routes: Routes = [
         title: 'Cuentas · Plata clara',
         loadComponent: () => import('./features/cuentas/cuentas').then((m) => m.Cuentas),
       },
-      // Próximas fases: cuentas, movimientos, categorías, presupuestos, metas...
-      // Las rutas Premium se protegen con roleGuard('PREMIUM').
+      {
+        path: 'perfil',
+        title: 'Perfil · Plata clara',
+        loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
+      },
     ],
   },
 
