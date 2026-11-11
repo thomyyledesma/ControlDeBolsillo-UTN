@@ -1,21 +1,30 @@
 package com.finanzas.personales.service;
 
-import com.finanzas.personales.Exception.*;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.finanzas.personales.Exception.CuentaEfectivoExistenteException;
+import com.finanzas.personales.Exception.CuentaEfectivoNoEliminableException;
+import com.finanzas.personales.Exception.CuentaNoEncontradaException;
+import com.finanzas.personales.Exception.PlanLimiteExcedidoException;
+import com.finanzas.personales.Exception.ReglaNegocioException;
+import com.finanzas.personales.Exception.SaldoInsuficienteException;
+import com.finanzas.personales.Exception.TransferenciaInvalidaException;
 import com.finanzas.personales.dto.request.CuentaRequestDTO;
 import com.finanzas.personales.dto.request.CuentaUpdateRequestDTO;
 import com.finanzas.personales.dto.request.TransferenciaRequestDTO;
+import com.finanzas.personales.enums.Rol;
 import com.finanzas.personales.enums.TipoCuenta;
 import com.finanzas.personales.enums.TipoMovimiento;
 import com.finanzas.personales.model.Cuenta;
 import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.repository.CuentaRepository;
 import com.finanzas.personales.repository.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +34,17 @@ public class CuentaService {
     private final UsuarioRepository usuarioRepository;
     private final MovimientoService movimientoService;
 
+    private static final int LIMITE_CUENTAS_FREE = 4;
 
     @Transactional
     public Cuenta crearCuenta(CuentaRequestDTO dto, Usuario usuario) {
+
+                if (usuario.getRol() == Rol.FREE
+                && cuentaRepository.countByUsuarioId(usuario.getId()) >= LIMITE_CUENTAS_FREE) {
+            throw new PlanLimiteExcedidoException(
+                    "El plan Free permite hasta " + LIMITE_CUENTAS_FREE
+                            + " cuentas (incluida Efectivo). Pasate a Premium para tener cuentas ilimitadas");
+        }
 
         if (dto.getTipoCuenta() == TipoCuenta.EFECTIVO) {
 

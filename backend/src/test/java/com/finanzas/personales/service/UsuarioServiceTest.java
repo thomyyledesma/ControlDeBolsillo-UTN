@@ -1,17 +1,5 @@
 package com.finanzas.personales.service;
 
-import com.finanzas.personales.model.Usuario;
-import com.finanzas.personales.repository.UsuarioRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,15 +8,57 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.finanzas.personales.Exception.PlanLimiteExcedidoException;
+import com.finanzas.personales.dto.request.CuentaRequestDTO;
+import com.finanzas.personales.enums.Rol;
+import com.finanzas.personales.enums.TipoCuenta;
+import com.finanzas.personales.model.Usuario;
+import com.finanzas.personales.repository.CuentaRepository;
+import com.finanzas.personales.repository.UsuarioRepository;
+
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+    @Mock 
+    private CuentaRepository cuentaRepository;
+    @Mock 
+    private MovimientoService movimientoService;
+    @InjectMocks 
+    private CuentaService cuentaService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private UsuarioService usuarioService;
     private Usuario usuario;
+
+        private CuentaRequestDTO dto() {
+        CuentaRequestDTO dto = new CuentaRequestDTO();
+        dto.setNombre("Nueva");
+        dto.setTipoCuenta(TipoCuenta.EFECTIVO);
+        return dto;
+    }
+
+    @Test
+    void usuarioFreeNoPuedeCrearLaQuintaCuenta() {
+        Usuario u = new Usuario();
+        u.setId(1L);
+        when(cuentaRepository.countByUsuarioId(1L)).thenReturn(4L);
+
+        assertThrows(PlanLimiteExcedidoException.class, () -> cuentaService.crearCuenta(dto(), u));
+        verify(cuentaRepository, never()).save(any());
+    }
 
     @BeforeEach
     void setUp() {
@@ -61,5 +91,17 @@ class UsuarioServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> usuarioService.cambiarPassword("test@mail.com", "clave123", "clave123"));
         verify(usuarioRepository, never()).save(any());
+    }
+
+        @Test
+    void pasarAPremium_cambiaElRol() {
+        Usuario u = new Usuario();
+        u.setEmail("a@a.com");
+        when(usuarioRepository.findByEmail("a@a.com")).thenReturn(Optional.of(u));
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+
+        Usuario resultado = usuarioService.pasarAPremium("a@a.com");
+
+        assertEquals(Rol.PREMIUM, resultado.getRol());
     }
 }

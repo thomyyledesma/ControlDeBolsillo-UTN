@@ -1,20 +1,23 @@
 package com.finanzas.personales.security;
 
-import com.finanzas.personales.repository.UsuarioRepository;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.List;
+import com.finanzas.personales.repository.UsuarioRepository;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter{
+public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
@@ -51,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                 var auth = new UsernamePasswordAuthenticationToken(
                         usuario,
                         null,
-                        List.of()
+                        List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
                 );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             });
@@ -60,5 +63,3 @@ public class JwtAuthFilter extends OncePerRequestFilter{
         filterChain.doFilter(request, response);
     }
 }
-
-

@@ -1,19 +1,24 @@
 package com.finanzas.personales.controller;
 
-import com.finanzas.personales.dto.response.AnalisisResponseDTO;
-import com.finanzas.personales.model.Usuario;
-import com.finanzas.personales.service.AnalisisFinancieroService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.time.LocalDate;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.finanzas.personales.dto.response.AnalisisResponseDTO;
+import com.finanzas.personales.model.Usuario;
+import com.finanzas.personales.service.AnalisisFinancieroService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/analisis")
+@PreAuthorize("hasRole('PREMIUM')")
 @RequiredArgsConstructor
 public class AnalisisController {
 
