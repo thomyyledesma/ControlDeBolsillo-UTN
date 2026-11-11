@@ -6,7 +6,7 @@
 // --- Enums (deben coincidir con los del backend) ---
 export type TipoMovimiento = 'INGRESO' | 'EGRESO';
 
-// Rol del usuario (lo agrega el backend en el JWT y en /usuarios/actual)
+// Plan del usuario (el backend lo devuelve en /usuarios/actual)
 export type Rol = 'FREE' | 'PREMIUM';
 
 export type TipoCuenta = 'EFECTIVO' | 'BANCO' | 'BILLETERA_VIRTUAL' | 'INVERSION';
@@ -33,7 +33,7 @@ export interface UsuarioResponse {
   id: number;
   nombre: string;
   email: string;
-  rol?: Rol; // pendiente en el backend: se agrega en la fase de roles
+  rol: Rol;
 }
 
 export interface ActualizarUsuarioRequest {

@@ -17,6 +17,12 @@
     </div>
 
     <div class="campo">
+        <label for="plan">Plan</label>
+        <input id="plan" type="text" [value]="auth.rol() === 'PREMIUM' ? 'Premium' : 'Free'" disabled />
+        <small><a routerLink="/planes">Ver planes</a></small>
+    </div>
+
+    <div class="campo">
         <label for="nombre">Nombre</label>
         <input id="nombre" type="text" formControlName="nombre" />
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {

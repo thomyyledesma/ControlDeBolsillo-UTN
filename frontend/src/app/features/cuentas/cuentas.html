@@ -8,11 +8,22 @@
       (click)="abrirTransferencia()">
       Transferir
     </button>
-    <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
+    <button class="btn btn-primario btn-auto" type="button" [disabled]="limiteAlcanzado()" (click)="abrirForm()">
       Nueva cuenta
     </button>
   </div>
 </header>
+
+@if (esFree()) {
+<p class="plan-uso">Plan Free: {{ cuentas().length }} de {{ limiteFree }} cuentas.</p>
+}
+
+@if (limiteAlcanzado()) {
+<div class="alerta-error" role="alert">
+  Llegaste al límite de cuentas del plan Free.
+  <a routerLink="/planes">Pasate a Premium</a> para tener cuentas ilimitadas.
+</div>
+}
 
 @if (exito(); as msg) {
 <div class="alerta-exito" role="status">{{ msg }}</div>
@@ -36,10 +47,7 @@
     <h2 class="cuenta-nombre">{{ c.nombre }}</h2>
     <div class="cuenta-saldo">{{ moneda(c.saldo) }}</div>
     <div class="cuenta-acciones">
-      <a
-        class="btn btn-secundario btn-auto"
-        [routerLink]="['/movimientos']"
-        [queryParams]="{ cuentaId: c.id }">
+      <a class="btn btn-secundario btn-auto" [routerLink]="['/movimientos']" [queryParams]="{ cuentaId: c.id }">
         Ver movimientos
       </a>
       <button class="btn btn-secundario btn-auto cuenta-editar" type="button" (click)="abrirEditar(c)">Editar</button>
