@@ -45,6 +45,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/cuentas/cuentas').then((m) => m.Cuentas),
       },
       {
+        path: 'planes',
+        title: 'Planes · Plata clara',
+        loadComponent: () => import('./features/planes/planes').then((m) => m.Planes),
+      },
+      {
         path: 'perfil',
         title: 'Perfil · Plata clara',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),

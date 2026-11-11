@@ -24,6 +24,7 @@ export class AppShell {
     { to: '/cuentas', label: 'Cuentas' },
     { to: '/movimientos', label: 'Movimientos' },
     { to: '/categorias', label: 'Categorías' },
+    { to: '/planes', label: 'Planes' },
   ];
 
   protected salir(): void {

@@ -48,3 +48,9 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+.plan-uso {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}

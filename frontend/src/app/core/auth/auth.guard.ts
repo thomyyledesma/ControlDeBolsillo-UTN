@@ -32,7 +32,7 @@ export const guestGuard: CanActivateFn = () => {
 
 /**
  * Protege rutas según el rol: `canActivate: [roleGuard('PREMIUM')]`.
- * Sin sesión va al login; con sesión pero sin el rol requerido, al resumen.
+ * Sin sesión va al login; con sesión pero sin el rol requerido, a la página de planes.
  */
 export const roleGuard = (...roles: Rol[]): CanActivateFn => {
   return () => {
@@ -41,7 +41,7 @@ export const roleGuard = (...roles: Rol[]): CanActivateFn => {
 
     const evaluar = () => {
       const rol = auth.rol();
-      return rol !== null && roles.includes(rol) ? true : router.createUrlTree(['/']);
+      return rol !== null && roles.includes(rol) ? true : router.createUrlTree(['/planes']);
     };
 
     if (!auth.isAuthenticated()) return router.createUrlTree(['/login']);
