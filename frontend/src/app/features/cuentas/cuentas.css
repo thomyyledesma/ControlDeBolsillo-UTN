@@ -39,6 +39,7 @@
 
 .cuenta-acciones {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
 }
