@@ -1,12 +1,15 @@
 package com.finanzas.personales.service;
 
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.finanzas.personales.Exception.UsuarioNoEncontradoException;
+import com.finanzas.personales.enums.Rol;
 import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.repository.UsuarioRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +47,11 @@ public class UsuarioService {
 
         usuario.setPassword(passwordEncoder.encode(passwordNueva));
         usuarioRepository.save(usuario);
+    }
+
+    public Usuario pasarAPremium(String email) {
+        Usuario usuario = buscarPorEmail(email);
+        usuario.setRol(Rol.PREMIUM);
+        return usuarioRepository.save(usuario);
     }
 }
