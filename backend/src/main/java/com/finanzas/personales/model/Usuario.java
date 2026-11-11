@@ -42,7 +42,7 @@ public class Usuario {
     @JsonIgnore
     private String password;
 
-        @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private Rol rol = Rol.FREE;
 
     public Rol getRol() {

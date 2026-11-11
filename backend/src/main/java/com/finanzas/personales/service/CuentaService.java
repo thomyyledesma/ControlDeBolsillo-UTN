@@ -22,7 +22,6 @@ import com.finanzas.personales.enums.TipoMovimiento;
 import com.finanzas.personales.model.Cuenta;
 import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.repository.CuentaRepository;
-import com.finanzas.personales.repository.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 public class CuentaService {
 
     private final CuentaRepository cuentaRepository;
-    private final UsuarioRepository usuarioRepository;
     private final MovimientoService movimientoService;
 
     private static final int LIMITE_CUENTAS_FREE = 4;
@@ -39,7 +37,7 @@ public class CuentaService {
     @Transactional
     public Cuenta crearCuenta(CuentaRequestDTO dto, Usuario usuario) {
 
-                if (usuario.getRol() == Rol.FREE
+                        if (usuario.getRol() == Rol.FREE
                 && cuentaRepository.countByUsuarioId(usuario.getId()) >= LIMITE_CUENTAS_FREE) {
             throw new PlanLimiteExcedidoException(
                     "El plan Free permite hasta " + LIMITE_CUENTAS_FREE

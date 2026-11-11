@@ -38,14 +38,14 @@ public class UsuarioController {
         return new UsuarioResponseDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getEmail(), actualizado.getRol());
     }
 
-        @PutMapping("/actual/password")
+    @PutMapping("/actual/password")
     public ResponseEntity<Void> cambiarPassword(@AuthenticationPrincipal Usuario usuario,
                                                 @Valid @RequestBody CambiarPasswordRequestDTO dto) {
         usuarioService.cambiarPassword(usuario.getEmail(), dto.getPasswordActual(), dto.getPasswordNueva());
         return ResponseEntity.noContent().build();
     }
 
-        @PostMapping("/actual/premium")
+    @PostMapping("/actual/premium")
     public UsuarioResponseDTO pasarAPremium(@AuthenticationPrincipal Usuario usuario) {
         Usuario actualizado = usuarioService.pasarAPremium(usuario.getEmail());
         return new UsuarioResponseDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getEmail(), actualizado.getRol());
