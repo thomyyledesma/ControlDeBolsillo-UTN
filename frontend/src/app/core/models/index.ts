@@ -108,6 +108,25 @@ export interface MovimientoResponse {
   categoriaNombre: string | null;
 }
 
+// --- Mercado (dólar, divisas y criptomonedas) ---
+export interface CotizacionResponse {
+  moneda: string;
+  casa: string;
+  nombre: string;
+  compra: number | null;
+  venta: number | null;
+  fechaActualizacion: string;
+}
+
+export interface CriptoResponse {
+  id: string;
+  symbol: string;
+  name: string;
+  precioUsd: number;
+  cambio24h: number | null;
+  capitalizacion: number | null;
+}
+
 // --- Presupuesto ---
 export interface PresupuestoRequest {
   montoLimite: number; // > 0

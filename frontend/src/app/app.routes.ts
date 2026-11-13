@@ -45,6 +45,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/cuentas/cuentas').then((m) => m.Cuentas),
       },
       {
+        path: 'mercado',
+        title: 'Mercado · Plata clara',
+        loadComponent: () => import('./features/mercado/mercado').then((m) => m.Mercado),
+      },
+      {
         path: 'planes',
         title: 'Planes · Plata clara',
         loadComponent: () => import('./features/planes/planes').then((m) => m.Planes),

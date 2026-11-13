@@ -1,0 +1,55 @@
+.mercado-bloque {
+  margin-bottom: 32px;
+}
+
+.mercado-bloque-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.mercado-actualizado {
+  font-size: 12px;
+  color: var(--tinta-60);
+}
+
+.mercado-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.mercado-card {
+  background: #fff;
+  border: 1.5px solid var(--crema-700);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+}
+
+.mercado-card-nombre {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.mercado-par {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mercado-par-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tinta-60);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mercado-par-valor {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
