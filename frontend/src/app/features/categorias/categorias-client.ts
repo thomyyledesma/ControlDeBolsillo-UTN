@@ -10,7 +10,7 @@ export class CategoriasClient {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiUrl;
 
-  listar(tipo?: TipoMovimiento ): Observable<CategoriaResponse[]> {
+  listar(tipo?: TipoMovimiento): Observable<CategoriaResponse[]> {
     let params = new HttpParams();
     if (tipo) params = params.set('tipo', tipo);
     return this.http.get<CategoriaResponse[]>(`${this.base}/categorias`, { params });

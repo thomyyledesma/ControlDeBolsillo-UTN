@@ -4,12 +4,7 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import {
-  CategoriaResponse,
-  CuentaResponse,
-  MovimientoRequest,
-  MovimientoResponse,
-} from '../../core/models';
+import { CategoriaResponse, CuentaResponse, MovimientoRequest, MovimientoResponse } from '../../core/models';
 
 @Service()
 export class MovimientosClient {
