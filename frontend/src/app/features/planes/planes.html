@@ -1,0 +1,45 @@
+<header class="contenido-header">
+    <h1>Planes</h1>
+    <p>Las funciones principales son gratis. Con Premium sumás herramientas extra.</p>
+</header>
+
+@if (exito()) {
+<div class="alerta-exito" role="status">¡Listo! Ya tenés el plan Premium.</div>
+}
+
+@if (error(); as msg) {
+<div class="alerta-error" role="alert">{{ msg }}</div>
+}
+
+<div class="planes-grid">
+    <article class="plan-card" [class.plan-actual]="auth.rol() === 'FREE'">
+        <h2>Free</h2>
+        <p class="plan-precio">Gratis</p>
+        <ul class="plan-lista">
+            <li>Hasta 4 cuentas (incluye Efectivo)</li>
+            <li>Movimientos y categorías</li>
+            <li>Presupuestos</li>
+            <li>Resumen de tus finanzas</li>
+        </ul>
+        @if (auth.rol() === 'FREE') {
+        <span class="plan-etiqueta">Tu plan actual</span>
+        }
+    </article>
+
+    <article class="plan-card plan-premium" [class.plan-actual]="auth.rol() === 'PREMIUM'">
+        <h2>Premium</h2>
+        <p class="plan-precio">Todo lo de Free, más:</p>
+        <ul class="plan-lista">
+            <li>Cuentas ilimitadas</li>
+            <li>Metas de ahorro</li>
+            <li>Análisis con IA de tus gastos</li>
+        </ul>
+        @if (auth.rol() === 'PREMIUM') {
+        <span class="plan-etiqueta">Tu plan actual</span>
+        } @else {
+        <button class="btn btn-primario btn-auto" type="button" [disabled]="procesando()" (click)="pasarAPremium()">
+            {{ procesando() ? 'Procesando...' : 'Pasar a Premium' }}
+        </button>
+        }
+    </article>
+</div>

@@ -1,0 +1,128 @@
+<header class="header-con-accion">
+    <div class="contenido-header">
+        <h1>Resumen</h1>
+        <p>Hola, {{ auth.usuario()?.nombre }}. Esta es tu situación al día de hoy.</p>
+    </div>
+    <div class="filtro-campo">
+        <label for="periodo">Período</label>
+        <input id="periodo" type="month" #periodoInput [value]="periodo()"
+            (change)="cambiarPeriodo(periodoInput.value)" />
+    </div>
+</header>
+
+@if (cargando()) {
+<div class="estado">Cargando tu resumen...</div>
+} @else if (error(); as msg) {
+<div class="estado estado-error" role="alert">{{ msg }}</div>
+} @else {
+
+<section class="patrimonio">
+    <div class="patrimonio-label">Patrimonio total</div>
+    <div class="patrimonio-monto">{{ moneda(patrimonio()) }}</div>
+    <div class="dash-patrimonio-detalle">
+        Suma de {{ cuentasActivas().length }} {{ cuentasActivas().length === 1 ? 'cuenta activa' : 'cuentas activas' }}
+    </div>
+</section>
+
+<h2 class="seccion-titulo dash-periodo">Movimientos de {{ etiquetaPeriodo() }}</h2>
+
+<section class="dash-kpis">
+    <article class="dash-kpi">
+        <div class="dash-kpi-label">Ingresos</div>
+        <div class="dash-kpi-valor monto-ingreso">{{ moneda(resumen().ingresos) }}</div>
+    </article>
+    <article class="dash-kpi">
+        <div class="dash-kpi-label">Gastos</div>
+        <div class="dash-kpi-valor monto-egreso">{{ moneda(resumen().gastos) }}</div>
+    </article>
+    <article class="dash-kpi">
+        <div class="dash-kpi-label">Balance</div>
+        <div class="dash-kpi-valor" [class.monto-ingreso]="resumen().balance >= 0"
+            [class.monto-egreso]="resumen().balance < 0">
+            {{ moneda(resumen().balance) }}
+        </div>
+    </article>
+</section>
+<p class="dash-nota">Las transferencias entre tus cuentas no se cuentan como ingresos ni gastos.</p>
+
+<div class="dash-columnas">
+    <section class="dash-bloque">
+        <h2 class="seccion-titulo">Gastos por categoría</h2>
+        @if (resumen().gastosPorCategoria.length === 0) {
+        <div class="estado">No registraste gastos en este período.</div>
+        } @else {
+        <ul class="dash-lista">
+            @for (g of resumen().gastosPorCategoria; track g.nombre) {
+            <li class="dash-categoria">
+                <div class="dash-categoria-fila">
+                    <span class="dash-categoria-nombre">{{ g.nombre }}</span>
+                    <span class="dash-categoria-monto">{{ moneda(g.monto) }} · {{ g.porcentaje }}%</span>
+                </div>
+                <div class="barra">
+                    <div class="barra-relleno ok" [style.width.%]="g.porcentaje"></div>
+                </div>
+            </li>
+            }
+        </ul>
+        }
+    </section>
+
+    <section class="dash-bloque">
+        <div class="dash-bloque-header">
+            <h2 class="seccion-titulo">Tus cuentas</h2>
+            <a class="dash-link" routerLink="/cuentas">Ver todas</a>
+        </div>
+        @if (cuentasActivas().length === 0) {
+        <div class="estado">Todavía no tenés cuentas.</div>
+        } @else {
+        <ul class="dash-lista">
+            @for (c of cuentasActivas(); track c.id) {
+            <li class="dash-cuenta">
+                <div>
+                    <div class="dash-cuenta-nombre">{{ c.nombre }}</div>
+                    <div class="dash-cuenta-tipo">{{ tipo(c.tipoCuenta) }}</div>
+                </div>
+                <div class="dash-cuenta-saldo">{{ moneda(c.saldo) }}</div>
+            </li>
+            }
+        </ul>
+        }
+    </section>
+</div>
+
+<section class="dash-bloque">
+    <div class="dash-bloque-header">
+        <h2 class="seccion-titulo">Últimos movimientos</h2>
+        <a class="dash-link" routerLink="/movimientos">Ver todos</a>
+    </div>
+    @if (recientes().length === 0) {
+    <div class="estado">No hay movimientos en este período.</div>
+    } @else {
+    <table class="movimientos-tabla">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Cuenta</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (m of recientes(); track m.id) {
+            <tr>
+                <td>{{ fecha(m.fecha) }}</td>
+                <td>{{ m.descripcion || '—' }}</td>
+                <td><span class="badge-cat">{{ m.categoriaNombre ?? 'Sin categoría' }}</span></td>
+                <td>{{ m.cuentaNombre }}</td>
+                <td [class.monto-ingreso]="m.tipo === 'INGRESO'" [class.monto-egreso]="m.tipo === 'EGRESO'">
+                    {{ m.tipo === 'EGRESO' ? '−' : '+' }}{{ moneda(m.monto) }}
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</section>
+
+}
