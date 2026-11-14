@@ -24,9 +24,9 @@ public class ReglaRecurrenteController {
 
     @PostMapping
     public ResponseEntity<ReglaRecurrenteResponseDTO> crear(
-            @AuthenticationPrincipal Usuario usuario,
-            @Valid @RequestBody ReglaRecurrenteRequestDTO dto) {
-        return ResponseEntity.ok(service.crearRegla(dto, usuario.getId()));
+        @AuthenticationPrincipal Usuario usuario,
+        @Valid @RequestBody ReglaRecurrenteRequestDTO dto) {
+    return ResponseEntity.status(201).body(service.crearRegla(dto, usuario.getId()));
     }
 
     @GetMapping

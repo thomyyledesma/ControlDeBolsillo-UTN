@@ -26,6 +26,7 @@ export class AppShell {
     { to: '/categorias', label: 'Categorías' },
     { to: '/presupuestos', label: 'Presupuestos' },
     { to: '/metas', label: 'Metas' },
+    { to: '/reglas-recurrentes', label: 'Reglas recurrentes' },
     { to: '/mercado', label: 'Mercado' },
     { to: '/analisis', label: 'Análisis IA' },
     { to: '/planes', label: 'Planes' },
