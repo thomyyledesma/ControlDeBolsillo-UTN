@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 import { HttpError } from '../../core/http/http-error';
 import { CuentaResponse, TipoCuenta } from '../../core/models';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
@@ -9,12 +11,13 @@ import { formatearMoneda, formatearTipoCuenta } from '../../shared/utils/format'
 import { CuentasClient } from './cuentas-client';
 
 @Component({
-  imports: [ReactiveFormsModule, Modal, ConfirmDialog],
+  imports: [ReactiveFormsModule, Modal, ConfirmDialog, RouterLink],
   selector: 'app-cuentas',
   styleUrl: './cuentas.css',
   templateUrl: './cuentas.html',
 })
 export class Cuentas {
+  private readonly auth = inject(AuthService);
   private readonly client = inject(CuentasClient);
   private readonly fb = inject(NonNullableFormBuilder);
 
@@ -35,6 +38,12 @@ export class Cuentas {
   protected readonly exito = signal<string | null>(null);
 
   protected readonly cuentasActivas = computed(() => this.cuentas().filter((c) => c.activa));
+
+  protected readonly limiteFree = 4;
+  protected readonly esFree = computed(() => this.auth.rol() === 'FREE');
+  protected readonly limiteAlcanzado = computed(
+    () => this.esFree() && this.cuentas().length >= this.limiteFree,
+  );
 
   protected readonly tipos: TipoCuenta[] = ['EFECTIVO', 'BANCO', 'BILLETERA_VIRTUAL', 'INVERSION'];
 

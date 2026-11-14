@@ -1,21 +1,33 @@
 package com.finanzas.personales.controller;
 
-import com.finanzas.personales.dto.request.MovimientoMetaRequestDTO;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.finanzas.personales.dto.request.MetaAhorroRequestDTO;
+import com.finanzas.personales.dto.request.MovimientoMetaRequestDTO;
 import com.finanzas.personales.dto.response.MetaAhorroResponseDTO;
 import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.service.MetaAhorroService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('PREMIUM')")
 @RequestMapping("/metas-ahorro")
 public class MetaAhorroController {
 

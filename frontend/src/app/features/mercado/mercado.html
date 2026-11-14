@@ -1,0 +1,113 @@
+<header class="header-con-accion">
+    <div class="contenido-header">
+        <h1>Mercado</h1>
+        <p>Cotizaciones de referencia para planificar tus finanzas.</p>
+    </div>
+    <button class="btn btn-secundario btn-auto" type="button" [disabled]="cargandoAlgo()" (click)="actualizar()">
+        {{ cargandoAlgo() ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+</header>
+
+<section class="mercado-bloque">
+    <div class="mercado-bloque-header">
+        <h2 class="seccion-titulo">Dólar</h2>
+        @if (dolares().datos.length > 0) {
+        <span class="mercado-actualizado">Actualizado: {{ ultimaActualizacion() }}</span>
+        }
+    </div>
+
+    @if (dolares().cargando) {
+    <div class="estado">Cargando cotizaciones...</div>
+    } @else if (dolares().error; as msg) {
+    <div class="estado estado-error" role="alert">{{ msg }}</div>
+    } @else if (dolares().datos.length === 0) {
+    <div class="estado">No hay cotizaciones disponibles por ahora.</div>
+    } @else {
+    <div class="mercado-grid">
+        @for (d of dolares().datos; track d.casa) {
+        <article class="mercado-card">
+            <div class="mercado-card-nombre">{{ d.nombre }}</div>
+            <div class="mercado-par">
+                <div>
+                    <span class="mercado-par-label">Compra</span>
+                    <span class="mercado-par-valor">{{ d.compra === null ? '—' : pesos(d.compra) }}</span>
+                </div>
+                <div>
+                    <span class="mercado-par-label">Venta</span>
+                    <span class="mercado-par-valor">{{ d.venta === null ? '—' : pesos(d.venta) }}</span>
+                </div>
+            </div>
+        </article>
+        }
+    </div>
+    }
+</section>
+
+<section class="mercado-bloque">
+    <h2 class="seccion-titulo">Otras divisas</h2>
+
+    @if (divisas().cargando) {
+    <div class="estado">Cargando divisas...</div>
+    } @else if (divisas().error; as msg) {
+    <div class="estado estado-error" role="alert">{{ msg }}</div>
+    } @else if (divisas().datos.length === 0) {
+    <div class="estado">No hay divisas disponibles por ahora.</div>
+    } @else {
+    <table class="movimientos-tabla">
+        <thead>
+            <tr>
+                <th>Moneda</th>
+                <th>Compra</th>
+                <th>Venta</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (d of divisas().datos; track d.moneda + d.casa) {
+            <tr>
+                <td>{{ d.nombre }} <span class="badge-cat">{{ d.moneda }}</span></td>
+                <td>{{ d.compra === null ? '—' : pesos(d.compra) }}</td>
+                <td>{{ d.venta === null ? '—' : pesos(d.venta) }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</section>
+
+<section class="mercado-bloque">
+    <h2 class="seccion-titulo">Criptomonedas</h2>
+
+    @if (criptos().cargando) {
+    <div class="estado">Cargando criptomonedas...</div>
+    } @else if (criptos().error; as msg) {
+    <div class="estado estado-error" role="alert">{{ msg }}</div>
+    } @else if (criptos().datos.length === 0) {
+    <div class="estado">
+        No pudimos obtener las criptomonedas en este momento (el proveedor limita las consultas).
+        Probá de nuevo en un minuto.
+    </div>
+    } @else {
+    <table class="movimientos-tabla">
+        <thead>
+            <tr>
+                <th>Moneda</th>
+                <th>Precio (USD)</th>
+                <th>Últimas 24 h</th>
+                <th>Capitalización</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (c of criptos().datos; track c.id) {
+            <tr>
+                <td>{{ c.name }} <span class="badge-cat">{{ c.symbol.toUpperCase() }}</span></td>
+                <td>{{ usd(c.precioUsd) }}</td>
+                <td [class.monto-ingreso]="(c.cambio24h ?? 0) > 0" [class.monto-egreso]="(c.cambio24h ?? 0) < 0">
+                    {{ variacion(c.cambio24h) }}
+                </td>
+                <td>{{ usdCompacto(c.capitalizacion) }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</section>

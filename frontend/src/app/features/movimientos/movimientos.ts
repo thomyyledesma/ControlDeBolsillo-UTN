@@ -25,7 +25,7 @@ export class Movimientos {
   protected readonly guardando = signal(false);
   protected readonly eliminando = signal(false);
   protected readonly error = signal<string | null>(null);
-
+ 
   protected readonly mostrandoForm = signal(false);
   protected readonly editandoId = signal<number | null>(null);
   protected readonly movimientoAEliminar = signal<MovimientoResponse | null>(null);

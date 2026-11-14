@@ -1,0 +1,125 @@
+.dash-patrimonio-detalle {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--verde-200);
+}
+
+.dash-periodo {
+  text-transform: capitalize;
+}
+
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.dash-kpi {
+  background: #fff;
+  border: 1.5px solid var(--crema-700);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+}
+
+.dash-kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tinta-60);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.dash-kpi-valor {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.dash-nota {
+  margin-bottom: 28px;
+  font-size: 12px;
+  color: var(--tinta-60);
+}
+
+.dash-columnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.dash-bloque {
+  margin-bottom: 8px;
+}
+
+.dash-bloque-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.dash-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--verde-500);
+}
+
+.dash-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.dash-categoria {
+  background: #fff;
+  border: 1.5px solid var(--crema-700);
+  border-radius: var(--radio);
+  padding: 14px 16px;
+}
+
+.dash-categoria-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.dash-categoria-nombre {
+  font-weight: 600;
+}
+
+.dash-categoria-monto {
+  color: var(--tinta-60);
+  white-space: nowrap;
+}
+
+.dash-cuenta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1.5px solid var(--crema-700);
+  border-radius: var(--radio);
+  padding: 14px 16px;
+}
+
+.dash-cuenta-nombre {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dash-cuenta-tipo {
+  font-size: 12px;
+  color: var(--tinta-60);
+}
+
+.dash-cuenta-saldo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}

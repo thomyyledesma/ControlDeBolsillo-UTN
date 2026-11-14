@@ -11,7 +11,7 @@
 </header>
 
 @if (error(); as msg) {
-  <div class="alerta-error" role="alert">{{ msg }}</div>
+<div class="alerta-error" role="alert">{{ msg }}</div>
 }
 
 <div class="filtro-campo" style="max-width: 220px; margin-bottom: 12px;">
@@ -61,9 +61,9 @@
 }
 
 @if (cargando()) {
-  <p>Cargando categorías...</p>
+<p>Cargando categorías...</p>
 } @else if (!categorias().length) {
-  <p>No tenés categorías todavía.</p>
+<p>No tenés categorías todavía.</p>
 } @else {
   <div class="categorias-grid">
     @for (c of categorias(); track c.id) {

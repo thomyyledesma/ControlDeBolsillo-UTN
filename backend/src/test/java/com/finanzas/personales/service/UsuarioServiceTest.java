@@ -1,7 +1,15 @@
 package com.finanzas.personales.service;
 
-import com.finanzas.personales.model.Usuario;
-import com.finanzas.personales.repository.UsuarioRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,15 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.finanzas.personales.enums.Rol;
+import com.finanzas.personales.model.Usuario;
+import com.finanzas.personales.repository.UsuarioRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
@@ -61,5 +63,14 @@ class UsuarioServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> usuarioService.cambiarPassword("test@mail.com", "clave123", "clave123"));
         verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void pasarAPremium_cambiaElRol() {
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+
+        Usuario resultado = usuarioService.pasarAPremium("test@mail.com");
+
+        assertEquals(Rol.PREMIUM, resultado.getRol());
     }
 }

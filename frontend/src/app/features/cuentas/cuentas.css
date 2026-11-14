@@ -39,6 +39,7 @@
 
 .cuenta-acciones {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
 }
@@ -47,4 +48,10 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.plan-uso {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  opacity: 0.75;
 }

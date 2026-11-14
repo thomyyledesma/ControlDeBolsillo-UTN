@@ -1,0 +1,46 @@
+.planes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  max-width: 720px;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--crema-700);
+  border-radius: var(--radio);
+  background: #fff;
+}
+
+.plan-card h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.plan-actual {
+  border: 2px solid var(--verde-500);
+}
+
+.plan-precio {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.plan-lista {
+  margin: 8px 0 12px;
+  padding-left: 18px;
+  flex: 1;
+}
+
+.plan-lista li {
+  margin-bottom: 6px;
+}
+
+.plan-etiqueta {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--verde-700);
+}

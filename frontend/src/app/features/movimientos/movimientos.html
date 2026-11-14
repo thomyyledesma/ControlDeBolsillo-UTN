@@ -103,7 +103,7 @@
     <select id="cuentaId" formControlName="cuentaId">
       <option value="">Todas</option>
       @for (c of cuentas(); track c.id) {
-        <option [value]="c.id">{{ c.nombre }}</option>
+      <option [value]="c.id">{{ c.nombre }}</option>
       }
     </select>
   </div>
@@ -113,7 +113,7 @@
     <select id="categoriaId" formControlName="categoriaId">
       <option value="">Todas</option>
       @for (c of categorias(); track c.id) {
-        <option [value]="c.id">{{ c.nombre }}</option>
+      <option [value]="c.id">{{ c.nombre }}</option>
       }
     </select>
   </div>
@@ -130,7 +130,7 @@
 @if (cargando()) {
   <p>Cargando movimientos...</p>
 } @else if (!filtrados().length) {
-  <p>No hay movimientos para esos filtros.</p>
+<p>No hay movimientos para esos filtros.</p>
 } @else {
   <div class="mov-grupos">
     @for (m of filtrados(); track m.id) {
