@@ -1,7 +1,82 @@
-<header class="contenido-header">
-  <h1>Movimientos</h1>
-  <p>Filtrá por fecha, cuenta, categoría y tipo.</p>
+<header class="header-con-accion">
+  <div class="contenido-header">
+    <h1>Movimientos</h1>
+    <p>Filtrá por fecha, cuenta, categoría y tipo.</p>
+  </div>
+  <div class="acciones-header">
+    <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
+      Nuevo movimiento
+    </button>
+  </div>
 </header>
+
+@if (error(); as msg) {
+  <div class="alerta-error" role="alert">{{ msg }}</div>
+}
+
+@if (mostrandoForm()) {
+  <app-modal
+    [titulo]="editandoId() === null ? 'Nuevo movimiento' : 'Editar movimiento'"
+    subtitulo="Completá cuenta, categoría, tipo y monto."
+    (cerrar)="cerrarForm()"
+  >
+    <form [formGroup]="formMovimiento" (ngSubmit)="registrarMovimiento()" novalidate>
+      <div class="filtro-fechas">
+        <div class="filtro-campo">
+          <label for="cuentaAlta">Cuenta</label>
+          <select id="cuentaAlta" formControlName="cuentaId">
+            <option value="">Seleccionar</option>
+            @for (c of cuentas(); track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filtro-campo">
+          <label for="tipoAlta">Tipo</label>
+          <select id="tipoAlta" formControlName="tipo">
+            <option value="INGRESO">Ingreso</option>
+            <option value="EGRESO">Egreso</option>
+          </select>
+        </div>
+
+        <div class="filtro-campo">
+          <label for="categoriaAlta">Categoría</label>
+          <select id="categoriaAlta" formControlName="categoriaId">
+            <option value="">Seleccionar</option>
+            @for (cat of categoriasRegistro(); track cat.id) {
+              <option [value]="cat.id">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filtro-campo">
+          <label for="montoAlta">Monto</label>
+          <input id="montoAlta" type="number" min="0.01" step="0.01" formControlName="monto" />
+        </div>
+
+        <div class="filtro-campo">
+          <label for="fechaAlta">Fecha</label>
+          <input id="fechaAlta" type="date" formControlName="fecha" />
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="descripcionAlta">Descripción (opcional)</label>
+        <input id="descripcionAlta" type="text" formControlName="descripcion" />
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : (editandoId() === null ? 'Registrar movimiento' : 'Guardar cambios') }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
 
 <form class="filtro-fechas" [formGroup]="filtros">
   <div class="filtro-campo">
@@ -46,10 +121,14 @@
   <button type="button" class="btn" (click)="limpiarFiltros()">Limpiar</button>
 </form>
 
+@if (filtros.controls.categoriaId.value) {
+  <p style="margin: 8px 0 16px;">
+    <strong>Total acumulado:</strong> {{ formatearMoneda(totalAcumulado()) }}
+  </p>
+}
+
 @if (cargando()) {
   <p>Cargando movimientos...</p>
-} @else if (error(); as msg) {
-  <div class="alerta-error">{{ msg }}</div>
 } @else if (!filtrados().length) {
   <p>No hay movimientos para esos filtros.</p>
 } @else {
@@ -59,7 +138,24 @@
         <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
         {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
         <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
+
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
+          <button class="btn" type="button" (click)="pedirEliminar(m)">Eliminar</button>
+        </div>
       </article>
     }
   </div>
+}
+
+@if (movimientoAEliminar(); as m) {
+  <app-confirm-dialog
+    titulo="Eliminar movimiento"
+    [mensaje]="'¿Seguro que querés eliminar este movimiento de «' + (m.categoriaNombre || 'Sin categoría') + '»?'"
+    textoConfirmar="Eliminar"
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="cancelarEliminar()"
+  />
 }

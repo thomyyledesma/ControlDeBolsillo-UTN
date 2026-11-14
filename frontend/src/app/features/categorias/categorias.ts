@@ -3,10 +3,12 @@ import { NonNullableFormBuilder, Validators, ReactiveFormsModule } from '@angula
 import { HttpError } from '../../core/http/http-error';
 import { CategoriaResponse, TipoMovimiento, CategoriaRequest } from '../../core/models';
 import { CategoriasClient } from './categorias-client';
-import { ThisReceiver } from '@angular/compiler';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { RouterLink } from '@angular/router';
+import { Modal } from '../../shared/components/modal/modal';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink, Modal, ConfirmDialog],
   selector: 'app-categorias',
   styleUrl: './categorias.css',
   templateUrl: './categorias.html',
@@ -18,8 +20,13 @@ export class Categorias {
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly cargando = signal(true);
   protected readonly guardando = signal(false);
+  protected readonly eliminando = signal(false);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly mostrandoForm = signal(false);
   protected readonly editandoId = signal<number | null>(null);
+  protected readonly categoriaAEliminar = signal<CategoriaResponse | null>(null);
+
   protected readonly filtroTipo = signal<'' | TipoMovimiento>('');
 
   protected readonly form = this.fb.group({
@@ -44,12 +51,20 @@ export class Categorias {
         this.cargando.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(
-          err instanceof HttpError ? err.message : 'No se pudieron cargar las categorías',
-        );
+        this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar las categorías');
         this.cargando.set(false);
       },
     });
+  }
+
+  protected abrirForm(): void {
+    this.resetForm();
+    this.mostrandoForm.set(true);
+  }
+
+  protected cerrarForm(): void {
+    if (this.guardando()) return;
+    this.mostrandoForm.set(false);
   }
 
   protected guardar(): void {
@@ -73,6 +88,7 @@ export class Categorias {
     req$.subscribe({
       next: () => {
         this.resetForm();
+        this.mostrandoForm.set(false);
         this.cargar();
         this.guardando.set(false);
       },
@@ -90,21 +106,38 @@ export class Categorias {
       tipo: c.tipo,
       icono: c.icono ?? '',
     });
+    this.mostrandoForm.set(true);
   }
 
   protected cancelarEdicion(): void {
     this.resetForm();
   }
 
-  protected eliminar(c: CategoriaResponse): void {
-    const ok = confirm(`¿Eliminar la categoría "${c.nombre}"?`);
-    if (!ok) return;
-
+  protected pedirEliminar(c: CategoriaResponse): void {
     this.error.set(null);
+    this.categoriaAEliminar.set(c);
+  }
+
+  protected cancelarEliminar(): void {
+    if (this.eliminando()) return;
+    this.categoriaAEliminar.set(null);
+  }
+
+  protected confirmarEliminar(): void {
+    const c = this.categoriaAEliminar();
+    if (!c) return;
+
+    this.eliminando.set(true);
     this.client.eliminar(c.id).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.eliminando.set(false);
+        this.categoriaAEliminar.set(null);
+        this.cargar();
+      },
       error: (err: unknown) => {
         this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar la categoría');
+        this.eliminando.set(false);
+        this.categoriaAEliminar.set(null);
       },
     });
   }

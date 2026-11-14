@@ -1,6 +1,13 @@
-<header class="contenido-header">
-  <h1>Categorías</h1>
-  <p>Creá, editá y eliminá tus categorías personalizadas.</p>
+<header class="header-con-accion">
+  <div class="contenido-header">
+    <h1>Categorías</h1>
+    <p>Creá, editá y eliminá tus categorías personalizadas.</p>
+  </div>
+  <div class="acciones-header">
+    <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">
+      Nueva categoría
+    </button>
+  </div>
 </header>
 
 @if (error(); as msg) {
@@ -16,35 +23,42 @@
   </select>
 </div>
 
-<form class="card" [formGroup]="form" (ngSubmit)="guardar()" novalidate style="padding:16px; margin-bottom:16px;">
-  <div class="campo">
-    <label for="nombre">Nombre</label>
-    <input id="nombre" type="text" formControlName="nombre" />
-  </div>
+@if (mostrandoForm()) {
+  <app-modal
+    [titulo]="editandoId() === null ? 'Nueva categoría' : 'Editar categoría'"
+    subtitulo="Completá nombre, tipo e ícono opcional."
+    (cerrar)="cerrarForm()"
+  >
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" />
+      </div>
 
-  <div class="campo">
-    <label for="tipo">Tipo</label>
-    <select id="tipo" formControlName="tipo">
-      <option value="INGRESO">Ingreso</option>
-      <option value="EGRESO">Egreso</option>
-    </select>
-  </div>
+      <div class="campo">
+        <label for="tipo">Tipo</label>
+        <select id="tipo" formControlName="tipo">
+          <option value="INGRESO">Ingreso</option>
+          <option value="EGRESO">Egreso</option>
+        </select>
+      </div>
 
-  <div class="campo">
-    <label for="icono">Ícono (opcional)</label>
-    <input id="icono" type="text" formControlName="icono" />
-  </div>
+      <div class="campo">
+        <label for="icono">Ícono (opcional)</label>
+        <input id="icono" type="text" formControlName="icono" />
+      </div>
 
-  <div style="display:flex; gap:8px; margin-top:8px;">
-    <button class="btn btn-primario" type="submit" [disabled]="guardando()">
-      {{ editandoId() === null ? 'Crear categoría' : 'Guardar cambios' }}
-    </button>
-
-    @if (editandoId() !== null) {
-      <button class="btn" type="button" (click)="cancelarEdicion()">Cancelar</button>
-    }
-  </div>
-</form>
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+          {{ editandoId() === null ? 'Crear categoría' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
 
 @if (cargando()) {
   <p>Cargando categorías...</p>
@@ -52,21 +66,36 @@
   <p>No tenés categorías todavía.</p>
 } @else {
   <div class="categorias-grid">
-  @for (c of categorias(); track c.id) {
-    <article class="categoria-card">
-      <div class="categoria-main">
-        <span>{{ c.icono || '🏷️' }}</span>
-        <strong>{{ c.nombre }}</strong>
-        <span>— {{ c.tipo }}</span>
-      </div>
+    @for (c of categorias(); track c.id) {
+      <article class="categoria-card">
+        <div class="categoria-main">
+          <span>{{ c.icono || '🏷️' }}</span>
+          <strong>{{ c.nombre }}</strong>
+          <span>— {{ c.tipo }}</span>
+        </div>
 
-      <div class="categoria-sub">Movimientos asociados: {{ c.cantidadMovimientos }}</div>
+        <div class="categoria-sub">Movimientos asociados: {{ c.cantidadMovimientos }}</div>
 
-      <div class="categoria-actions">
-        <button class="btn" type="button" (click)="empezarEdicion(c)">Editar</button>
-        <button class="btn" type="button" (click)="eliminar(c)">Eliminar</button>
-      </div>
-    </article>
-  }
-</div>
+        <div class="categoria-actions">
+          <a class="btn" [routerLink]="['/movimientos']" [queryParams]="{ categoriaId: c.id }">
+            Ver movimientos
+          </a>
+          <button class="btn" type="button" (click)="empezarEdicion(c)">Editar</button>
+          <button class="btn" type="button" (click)="pedirEliminar(c)">Eliminar</button>
+        </div>
+      </article>
+    }
+  </div>
+}
+
+@if (categoriaAEliminar(); as c) {
+  <app-confirm-dialog
+    titulo="Eliminar categoría"
+    [mensaje]="'¿Seguro que querés eliminar «' + c.nombre + '»?'"
+    textoConfirmar="Eliminar"
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="cancelarEliminar()"
+  />
 }
