@@ -68,13 +68,19 @@ export const routes: Routes = [
       {
         path: 'presupuestos',
         title: 'Presupuestos · Plata clara',
-        loadComponent: () => import('./features/presupuestos/presupuestos').then((m) => m.Presupuestos),
+        loadComponent: () =>
+          import('./features/presupuestos/presupuestos').then((m) => m.Presupuestos),
       },
       {
-      path: 'metas',
-      canActivate: [roleGuard('PREMIUM')],
-      title: 'Metas de ahorro · Plata clara',
-      loadComponent: () => import('./features/metas/metas').then((m) => m.Metas),
+        path: 'metas',
+        canActivate: [roleGuard('PREMIUM')],
+        title: 'Metas de ahorro · Plata clara',
+        loadComponent: () => import('./features/metas/metas').then((m) => m.Metas),
+      },
+      {
+        path: 'reglas-recurrentes',
+        title: 'Reglas recurrentes · Plata clara',
+        loadComponent: () => import('./features/reglas-recurrentes/reglas-recurrentes').then((m) => m.ReglasRecurrentes,),
       },
     ],
   },
