@@ -9,6 +9,7 @@ import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.service.PresupuestoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,8 @@ public class PresupuestoController {
     @PostMapping
     public ResponseEntity<PresupuestoResponseDTO> guardar(@Valid @RequestBody PresupuestoRequestDTO dto,
                                                           @AuthenticationPrincipal Usuario usuario) {
-        return ResponseEntity.ok(PresupuestoResponseDTO.from(presupuestoService.guardar(dto, usuario)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(PresupuestoResponseDTO.from(presupuestoService.guardar(dto, usuario)));
     }
 
 
