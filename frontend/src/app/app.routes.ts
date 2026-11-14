@@ -65,6 +65,11 @@ export const routes: Routes = [
         title: 'Perfil · Plata clara',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
       },
+      {
+        path: 'presupuestos',
+        title: 'Presupuestos · Plata clara',
+        loadComponent: () => import('./features/presupuestos/presupuestos').then((m) => m.Presupuestos),
+      },
     ],
   },
 
