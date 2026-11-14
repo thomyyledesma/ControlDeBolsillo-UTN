@@ -70,6 +70,12 @@ export const routes: Routes = [
         title: 'Presupuestos · Plata clara',
         loadComponent: () => import('./features/presupuestos/presupuestos').then((m) => m.Presupuestos),
       },
+      {
+      path: 'metas',
+      canActivate: [roleGuard('PREMIUM')],
+      title: 'Metas de ahorro · Plata clara',
+      loadComponent: () => import('./features/metas/metas').then((m) => m.Metas),
+      },
     ],
   },
 

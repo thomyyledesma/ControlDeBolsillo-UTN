@@ -1,0 +1,18 @@
+.acciones-header {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metas-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.meta-ayuda {
+  margin: 0 0 10px;
+  color: var(--tinta-60);
+  font-size: 14px;
+}

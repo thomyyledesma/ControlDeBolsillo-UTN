@@ -1,0 +1,188 @@
+<header class="header-con-accion">
+  <div class="contenido-header">
+    <h1>Metas de ahorro</h1>
+    <p>Definí objetivos, seguí el progreso y operá depósitos/retiros.</p>
+  </div>
+  <div class="acciones-header">
+    <button class="btn btn-primario btn-auto" type="button" (click)="abrirFormCrear()">
+      Nueva meta
+    </button>
+  </div>
+</header>
+
+<div class="metas-toolbar">
+  <div class="filtro-campo">
+    <label for="estadoMeta">Estado</label>
+    <select id="estadoMeta" [value]="estadoFiltro()" (change)="cambiarFiltro($any($event.target).value)">
+      <option value="TODAS">Todas</option>
+      <option value="EN_PROGRESO">En progreso</option>
+      <option value="CUMPLIDAS">Cumplidas</option>
+    </select>
+  </div>
+</div>
+
+@if (exito(); as msg) {
+  <div class="alerta-exito" role="status">{{ msg }}</div>
+}
+
+@if (error(); as msg) {
+  <div class="alerta-error" role="alert">{{ msg }}</div>
+}
+
+@if (cargando()) {
+  <p>Cargando metas...</p>
+} @else if (!metas().length) {
+  <p>No hay metas para ese filtro.</p>
+} @else {
+  <div class="metas-grid">
+    @for (meta of metas(); track meta.id) {
+      <article class="meta-card" [class.cumplida]="meta.cumplida">
+        @if (meta.cumplida) {
+          <span class="meta-cumplida-badge">Cumplida</span>
+        }
+
+        <h2 class="meta-card-nombre">{{ meta.nombre }}</h2>
+        <div class="meta-card-fecha">
+          {{ meta.fechaLimite ? ('Límite: ' + fecha(meta.fechaLimite)) : 'Sin fecha límite' }}
+        </div>
+
+        <div class="meta-montos">
+          <span class="meta-actual">{{ moneda(meta.montoActual) }}</span>
+          <span class="meta-objetivo">de {{ moneda(meta.montoObjetivo) }}</span>
+        </div>
+
+        <div class="barra">
+          <div
+            class="barra-relleno meta"
+            [class.completa]="meta.cumplida"
+            [style.width.%]="porcentaje(meta)"
+          ></div>
+        </div>
+
+        <div class="meta-pct">
+          {{ porcentaje(meta) }}% completado · Falta {{ moneda(pendiente(meta)) }}
+        </div>
+
+        <div class="meta-card-acciones">
+          <button class="btn btn-secundario btn-auto" type="button" (click)="abrirDepositar(meta)">
+            Depositar
+          </button>
+          <button
+            class="btn btn-secundario btn-auto"
+            type="button"
+            [disabled]="meta.montoActual <= 0"
+            (click)="abrirRetirar(meta)"
+          >
+            Retirar
+          </button>
+          <button class="btn btn-secundario btn-auto" type="button" (click)="abrirFormEditar(meta)">
+            Editar
+          </button>
+          <button class="btn btn-peligro btn-auto" type="button" (click)="pedirEliminar(meta)">
+            Eliminar
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+}
+
+@if (mostrandoFormMeta()) {
+  <app-modal
+    [titulo]="editandoId() === null ? 'Nueva meta de ahorro' : 'Editar meta de ahorro'"
+    subtitulo="Definí nombre, objetivo y fecha límite opcional."
+    (cerrar)="cerrarFormMeta()"
+  >
+    <form [formGroup]="formMeta" (ngSubmit)="guardarMeta()" novalidate>
+      <div class="campo">
+        <label for="nombreMeta">Nombre</label>
+        <input id="nombreMeta" type="text" formControlName="nombre" />
+      </div>
+
+      <div class="campo">
+        <label for="montoObjetivoMeta">Monto objetivo</label>
+        <input id="montoObjetivoMeta" type="number" min="0.01" step="0.01" formControlName="montoObjetivo" />
+      </div>
+
+      <div class="campo">
+        <label for="fechaLimiteMeta">Fecha límite (opcional)</label>
+        <input id="fechaLimiteMeta" type="date" formControlName="fechaLimite" />
+      </div>
+
+      <div class="campo">
+        <label for="cuentaMeta">Cuenta por defecto (opcional)</label>
+        <select id="cuentaMeta" formControlName="cuentaId">
+          <option value="">Sin cuenta fija</option>
+          @for (c of cuentasActivas(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" type="button" (click)="cerrarFormMeta()" [disabled]="guardandoMeta()">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" type="submit" [disabled]="guardandoMeta()">
+          {{ guardandoMeta() ? 'Guardando...' : (editandoId() === null ? 'Crear meta' : 'Guardar cambios') }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
+
+@if (metaOperando(); as meta) {
+  <app-modal
+    [titulo]="tituloMovimiento()"
+    [subtitulo]="'Meta: ' + meta.nombre"
+    (cerrar)="cerrarMovimiento()"
+  >
+    <form [formGroup]="formMovimiento" (ngSubmit)="guardarMovimiento()" novalidate>
+      <p class="meta-ayuda">
+        Saldo actual en meta: <strong>{{ moneda(meta.montoActual) }}</strong>
+      </p>
+
+      @if (meta.cuentaId === null) {
+        <div class="campo">
+          <label for="cuentaOperacionMeta">Cuenta</label>
+          <select id="cuentaOperacionMeta" formControlName="cuentaId">
+            <option value="">Seleccionar cuenta</option>
+            @for (c of cuentasActivas(); track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+      } @else {
+        <p class="meta-ayuda">
+          Se usará la cuenta asociada: <strong>{{ cuentaAsignadaNombre() }}</strong>
+        </p>
+      }
+
+      <div class="campo">
+        <label for="montoOperacionMeta">Monto</label>
+        <input id="montoOperacionMeta" type="number" min="0.01" step="0.01" formControlName="monto" />
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" type="button" (click)="cerrarMovimiento()" [disabled]="guardandoMovimiento()">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" type="submit" [disabled]="guardandoMovimiento()">
+          {{ guardandoMovimiento() ? 'Procesando...' : (accionMovimiento() === 'DEPOSITAR' ? 'Confirmar depósito' : 'Confirmar retiro') }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
+
+@if (metaAEliminar(); as meta) {
+  <app-confirm-dialog
+    titulo="Eliminar meta"
+    [mensaje]="'¿Seguro que querés eliminar «' + meta.nombre + '»?'"
+    textoConfirmar="Eliminar"
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="cancelarEliminar()"
+  />
+}
