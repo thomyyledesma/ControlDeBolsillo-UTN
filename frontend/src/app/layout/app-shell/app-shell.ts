@@ -24,6 +24,7 @@ export class AppShell {
     { to: '/movimientos', label: 'Movimientos' },
     { to: '/categorias', label: 'Categorías' },
     { to: '/mercado', label: 'Mercado' },
+    { to: '/analisis', label: 'Análisis IA' },
     { to: '/planes', label: 'Planes' },
   ];
 

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, guestGuard } from './core/auth/auth.guard';
+import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guard';
 import { AppShell } from './layout/app-shell/app-shell';
 
 export const routes: Routes = [
@@ -53,6 +53,12 @@ export const routes: Routes = [
         path: 'planes',
         title: 'Planes · Plata clara',
         loadComponent: () => import('./features/planes/planes').then((m) => m.Planes),
+      },
+      {
+        path: 'analisis',
+        canActivate: [roleGuard('PREMIUM')],
+        title: 'Análisis IA · Plata clara',
+        loadComponent: () => import('./features/analisis/analisis').then((m) => m.Analisis),
       },
       {
         path: 'perfil',
