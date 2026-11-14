@@ -1,0 +1,55 @@
+<header class="header-con-accion">
+    <div class="contenido-header">
+        <h1>Análisis con IA</h1>
+        <p>Un resumen de tus finanzas con recomendaciones concretas, generado por Gemini.</p>
+    </div>
+</header>
+
+<section class="analisis-panel">
+    <fieldset class="analisis-alcance">
+        <legend class="seccion-titulo">¿Qué querés analizar?</legend>
+        <label class="analisis-opcion">
+            <input type="radio" name="alcance" value="TODO" [ngModel]="alcance()"
+                (ngModelChange)="alcance.set($event)" />
+            Todo mi historial
+        </label>
+        <label class="analisis-opcion">
+            <input type="radio" name="alcance" value="PERIODO" [ngModel]="alcance()"
+                (ngModelChange)="alcance.set($event)" />
+            Un período
+        </label>
+    </fieldset>
+
+    @if (alcance() === 'PERIODO') {
+    <div class="analisis-fechas">
+        <div class="filtro-campo">
+            <label for="desde">Desde</label>
+            <input id="desde" type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" />
+        </div>
+        <div class="filtro-campo">
+            <label for="hasta">Hasta</label>
+            <input id="hasta" type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" />
+        </div>
+    </div>
+    @if (errorPeriodo(); as msg) {
+    <div class="alerta-error" role="alert">{{ msg }}</div>
+    }
+    }
+
+    <button class="btn btn-primario btn-auto" type="button" [disabled]="!puedeGenerar()" (click)="generar()">
+        {{ cargando() ? 'Analizando...' : 'Generar análisis' }}
+    </button>
+</section>
+
+@if (cargando()) {
+<div class="estado">Estamos analizando tus finanzas, puede tardar unos segundos...</div>
+} @else if (error(); as msg) {
+<div class="estado estado-error" role="alert">{{ msg }}</div>
+} @else if (resultado(); as texto) {
+<article class="analisis-resultado">
+    <h2 class="seccion-titulo">Tu análisis</h2>
+    <p class="analisis-texto">{{ texto }}</p>
+    <p class="analisis-aviso">Generado por IA a partir de tus datos. Es orientativo, no asesoramiento financiero
+        profesional.</p>
+</article>
+}
