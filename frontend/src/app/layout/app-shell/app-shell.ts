@@ -18,16 +18,18 @@ export class AppShell {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-protected readonly navItems: NavItem[] = [
-  { to: '/', label: 'Resumen', exact: true },
-  { to: '/cuentas', label: 'Cuentas' },
-  { to: '/movimientos', label: 'Movimientos' },
-  { to: '/categorias', label: 'Categorías' },
-  { to: '/presupuestos', label: 'Presupuestos' },
-  { to: '/mercado', label: 'Mercado' },
-  { to: '/analisis', label: 'Análisis IA' },
-  { to: '/planes', label: 'Planes' },
-];
+  // Se van sumando a medida que se construye cada pantalla.
+  protected readonly navItems: NavItem[] = [
+    { to: '/', label: 'Resumen', exact: true },
+    { to: '/cuentas', label: 'Cuentas' },
+    { to: '/movimientos', label: 'Movimientos' },
+    { to: '/categorias', label: 'Categorías' },
+    { to: '/presupuestos', label: 'Presupuestos' },
+    { to: '/metas', label: 'Metas' },
+    { to: '/mercado', label: 'Mercado' },
+    { to: '/analisis', label: 'Análisis IA' },
+    { to: '/planes', label: 'Planes' },
+  ];
 
   protected salir(): void {
     this.auth.logout();

@@ -109,23 +109,40 @@ public class MetaAhorroService {
 
     @Transactional
     public MetaAhorroResponseDTO depositar(Long metaId, MovimientoMetaRequestDTO dto, Long usuarioId){
-        MetaAhorro meta = obtenerMetaDelUsuario(metaId, usuarioId);
-        Cuenta cuenta = resolverCuenta(dto.getCuentaId(), meta, usuarioId);
+    MetaAhorro meta = obtenerMetaDelUsuario(metaId, usuarioId);
+    Cuenta cuenta = resolverCuenta(dto.getCuentaId(), meta, usuarioId);
 
-        BigDecimal monto = dto.getMonto();
+    BigDecimal montoSolicitado = dto.getMonto();
 
-        if(cuenta.getSaldo().compareTo(monto) < 0){
-            throw new SaldoInsuficienteException("Saldo insuficiente en la cuenta. Disponible: " + cuenta.getSaldo());
-        }
+    if (montoSolicitado == null || montoSolicitado.compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalArgumentException("El monto a depositar debe ser mayor a cero");
+    }
 
-        cuenta.setSaldo(cuenta.getSaldo().subtract(monto));
-        cuentaRepository.save(cuenta);
+    BigDecimal restante = meta.getMontoObjetivo().subtract(meta.getMontoActual());
+    if (restante.compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalStateException("La meta ya fue cumplida");
+    }
 
-        meta.depositar(monto);
+    BigDecimal montoAplicado = montoSolicitado.min(restante);
 
-        registrarMovimientoMeta(cuenta, monto, TipoMovimiento.EGRESO, "Deposito en meta: " + meta.getNombre(), usuarioId);
+    if(cuenta.getSaldo().compareTo(montoAplicado) < 0){
+        throw new SaldoInsuficienteException("Saldo insuficiente en la cuenta. Disponible: " + cuenta.getSaldo());
+    }
 
-        return MetaAhorroResponseDTO.from(metaAhorroRepository.save(meta));
+    cuenta.setSaldo(cuenta.getSaldo().subtract(montoAplicado));
+    cuentaRepository.save(cuenta);
+
+    meta.depositar(montoAplicado);
+
+    registrarMovimientoMeta(
+            cuenta,
+            montoAplicado,
+            TipoMovimiento.EGRESO,
+            "Deposito en meta: " + meta.getNombre(),
+            usuarioId
+    );
+
+    return MetaAhorroResponseDTO.from(metaAhorroRepository.save(meta));
     }
 
 
@@ -141,7 +158,7 @@ public class MetaAhorroService {
         }
         if (monto.compareTo(meta.getMontoActual()) > 0) {
             throw new SaldoMetaInsuficienteException(
-                    "No hay suficiente saldo en la meta para retirar ese monto");
+                    "El monto a retirar supera lo ahorrado en esta meta");
         }
 
         meta.retirar(monto);
