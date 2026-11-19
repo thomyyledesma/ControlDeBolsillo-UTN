@@ -7,15 +7,15 @@
     <button class="btn btn-primario btn-auto" type="button" (click)="abrirForm()">Nueva regla</button>
   </div>
 </header>
-
+ 
 @if (exito(); as msg) {
-  <div class="alerta-exito" role="status">{{ msg }}</div>
+<div class="alerta-exito" role="status">{{ msg }}</div>
 }
-
+ 
 @if (error(); as msg) {
-  <div class="alerta-error" role="alert">{{ msg }}</div>
+<div class="alerta-error" role="alert">{{ msg }}</div>
 }
-
+ 
 @if (mostrandoForm()) {
   <app-modal titulo="Nueva regla recurrente" subtitulo="Completá los datos de la regla automática." (cerrar)="cerrarForm()">
     <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
@@ -36,7 +36,7 @@
           <small id="cuentaId-error" class="campo-error" role="alert">Elegí la cuenta de la regla.</small>
         }
       </div>
-
+ 
       <div class="campo">
         <label for="tipo">Tipo</label>
         <select id="tipo" formControlName="tipo">
@@ -44,7 +44,7 @@
           <option value="EGRESO">Egreso</option>
         </select>
       </div>
-
+ 
       <div class="campo">
         <label for="categoriaId">Categoría</label>
         <select
@@ -62,7 +62,7 @@
           <small id="categoriaId-error" class="campo-error" role="alert">Elegí la categoría de la regla.</small>
         }
       </div>
-
+ 
       <div class="campo">
         <label for="descripcion">Descripción</label>
         <input
@@ -77,7 +77,7 @@
           <small id="descripcion-error" class="campo-error" role="alert">La descripción es obligatoria (máximo 120 caracteres).</small>
         }
       </div>
-
+ 
       <div class="campo">
         <label for="monto">Monto</label>
         <input
@@ -93,7 +93,7 @@
           <small id="monto-error" class="campo-error" role="alert">El monto es obligatorio y debe ser mayor a 0.</small>
         }
       </div>
-
+ 
       <div class="campo">
         <label for="frecuenciaDias">Frecuencia</label>
         <select
@@ -110,7 +110,7 @@
           <small id="frecuenciaDias-error" class="campo-error" role="alert">La frecuencia debe ser de al menos 1 día.</small>
         }
       </div>
-
+ 
       <div class="campo">
         <label for="proximaEjecucion">Próxima ejecución</label>
         <input
@@ -124,12 +124,12 @@
           <small id="proximaEjecucion-error" class="campo-error" role="alert">Elegí la próxima fecha de ejecución.</small>
         }
       </div>
-
+ 
       <div class="campo checkbox-row">
         <input id="esFamiliar" type="checkbox" formControlName="esFamiliar" />
         <label for="esFamiliar">Es gasto familiar</label>
       </div>
-
+ 
       <div class="modal-acciones">
         <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">Cancelar</button>
         <button class="btn btn-primario" type="submit" [disabled]="guardando()">
@@ -139,60 +139,54 @@
     </form>
   </app-modal>
 }
-
+ 
 @if (cargando()) {
-  <p>Cargando reglas recurrentes...</p>
+<p>Cargando reglas recurrentes...</p>
 } @else if (!reglasOrdenadas().length) {
-  <p>No tenés reglas recurrentes configuradas.</p>
+<p>No tenés reglas recurrentes configuradas.</p>
 } @else {
-  <div class="reglas-grid">
-    @for (r of reglasOrdenadas(); track r.id) {
-      <article class="card regla-card" [class.inactiva]="!r.activa">
-        <div class="regla-header">
-          <strong>{{ r.descripcion }}</strong>
-          <span class="estado" [class.activa]="r.activa" [class.inactiva]="!r.activa">
-            {{ r.activa ? 'Activa' : 'Inactiva' }}
-          </span>
-        </div>
-
-        <p class="regla-dato"><strong>Monto:</strong> {{ moneda(r.monto) }}</p>
-        <p class="regla-dato"><strong>Frecuencia:</strong> {{ frecuenciaTexto(r.frecuenciaDias) }}</p>
-        <p class="regla-dato"><strong>Cuenta:</strong> {{ r.cuentaNombre }}</p>
-        <p class="regla-dato"><strong>Categoría:</strong> {{ r.categoriaNombre }}</p>
-        <p class="regla-dato"><strong>Tipo:</strong> {{ r.tipo }}</p>
-        <p class="regla-dato"><strong>Próxima ejecución:</strong> {{ fecha(r.proximaEjecucion) }}</p>
-
-        @if (r.activa) {
-          <div class="regla-acciones">
-            <button class="btn btn-peligro btn-auto" type="button" (click)="pedirDesactivar(r)">
-              Desactivar
-            </button>
-          </div>
-        } @else {
-          <div class="regla-acciones">
-            <button
-              class="btn btn-primario btn-auto"
-              type="button"
-              [disabled]="reactivando()"
-              (click)="reactivar(r)"
-            >
-              Reactivar
-            </button>
-          </div>
-        }
-      </article>
+<div class="reglas-grid">
+  @for (r of reglasOrdenadas(); track r.id) {
+  <article class="card regla-card" [class.inactiva]="!r.activa">
+    <div class="regla-header">
+      <strong>{{ r.descripcion }}</strong>
+      <span class="estado" [class.activa]="r.activa" [class.inactiva]="!r.activa">
+        {{ r.activa ? 'Activa' : 'Inactiva' }}
+      </span>
+    </div>
+ 
+    <p class="regla-dato"><strong>Monto:</strong> {{ moneda(r.monto) }}</p>
+    <p class="regla-dato"><strong>Frecuencia:</strong> {{ frecuenciaTexto(r.frecuenciaDias) }}</p>
+    <p class="regla-dato"><strong>Cuenta:</strong> {{ r.cuentaNombre }}</p>
+    <p class="regla-dato"><strong>Categoría:</strong> {{ r.categoriaNombre }}</p>
+    <p class="regla-dato"><strong>Tipo:</strong> {{ r.tipo }}</p>
+    <p class="regla-dato"><strong>Próxima ejecución:</strong> {{ fecha(r.proximaEjecucion) }}</p>
+ 
+    @if (r.activa) {
+    <div class="regla-acciones">
+      <button class="btn btn-secundario btn-auto" type="button" (click)="ejecutarAhora(r)"
+        [disabled]="ejecutandoId() !== null">
+        {{ ejecutandoId() === r.id ? 'Ejecutando...' : 'Ejecutar ahora' }}
+      </button>
+      <button class="btn btn-peligro btn-auto" type="button" (click)="pedirDesactivar(r)">
+        Desactivar
+      </button>
+    </div>
+    } @else {
+    <div class="regla-acciones">
+      <button class="btn btn-primario btn-auto" type="button" [disabled]="reactivando()" (click)="reactivar(r)">
+        Reactivar
+      </button>
+    </div>
     }
-  </div>
+  </article>
+  }
+</div>
 }
-
+ 
 @if (reglaADesactivar(); as regla) {
-  <app-confirm-dialog
-    titulo="Desactivar regla"
-    [mensaje]="'¿Seguro que querés desactivar la regla «' + regla.descripcion + '»?'"
-    textoConfirmar="Desactivar"
-    [peligro]="true"
-    [procesando]="desactivando()"
-    (confirmar)="confirmarDesactivar()"
-    (cancelar)="cancelarDesactivar()"
-  />
+<app-confirm-dialog titulo="Desactivar regla"
+  [mensaje]="'¿Seguro que querés desactivar la regla «' + regla.descripcion + '»?'" textoConfirmar="Desactivar"
+  [peligro]="true" [procesando]="desactivando()" (confirmar)="confirmarDesactivar()"
+  (cancelar)="cancelarDesactivar()" />
 }

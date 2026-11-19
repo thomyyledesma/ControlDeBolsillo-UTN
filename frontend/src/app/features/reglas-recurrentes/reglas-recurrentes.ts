@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-
+ 
 import { HttpError } from '../../core/http/http-error';
 import {
   CategoriaResponse,
@@ -15,7 +15,7 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
 import { Modal } from '../../shared/components/modal/modal';
 import { formatearFecha, formatearMoneda } from '../../shared/utils/format';
 import { ReglasRecurrentesClient } from './reglas-recurrentes-client';
-
+ 
 @Component({
   selector: 'app-reglas-recurrentes',
   imports: [ReactiveFormsModule, Modal, ConfirmDialog],
@@ -25,39 +25,40 @@ import { ReglasRecurrentesClient } from './reglas-recurrentes-client';
 export class ReglasRecurrentes {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly client = inject(ReglasRecurrentesClient);
-
+ 
   protected readonly reglas = signal<ReglaRecurrenteResponse[]>([]);
   protected readonly cuentas = signal<CuentaResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
-
+ 
   protected readonly cargando = signal(true);
   protected readonly guardando = signal(false);
   protected readonly desactivando = signal(false);
   protected readonly reactivando = signal(false);
+  protected readonly ejecutandoId = signal<number | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly exito = signal<string | null>(null);
-
+ 
   protected readonly mostrandoForm = signal(false);
   protected readonly reglaADesactivar = signal<ReglaRecurrenteResponse | null>(null);
-
+ 
   private readonly tipoSeleccionado = signal<TipoMovimiento>('EGRESO');
-
+ 
   protected readonly frecuencias = [
     { dias: 7, label: 'Semanal (cada 7 días)' },
     { dias: 15, label: 'Quincenal (cada 15 días)' },
     { dias: 30, label: 'Mensual (cada 30 días)' },
   ];
-
+ 
   protected readonly reglasOrdenadas = computed(() =>
     [...this.reglas()].sort((a, b) => Number(b.activa) - Number(a.activa) || b.id - a.id),
   );
-
+ 
   protected readonly cuentasActivas = computed(() => this.cuentas().filter((c) => c.activa));
-
+ 
   protected readonly categoriasDelTipo = computed(() =>
     this.categorias().filter((c) => c.tipo === this.tipoSeleccionado()),
   );
-
+ 
   protected readonly form = this.fb.group({
     cuentaId: ['', [Validators.required]],
     tipo: ['EGRESO' as TipoMovimiento, [Validators.required]],
@@ -68,20 +69,20 @@ export class ReglasRecurrentes {
     frecuenciaDias: [30, [Validators.required, Validators.min(1)]],
     proximaEjecucion: [this.hoyIso(), [Validators.required]],
   });
-
+ 
   protected readonly moneda = formatearMoneda;
   protected readonly fecha = formatearFecha;
-
+ 
   constructor() {
     this.form.controls.tipo.valueChanges.pipe(takeUntilDestroyed()).subscribe((tipo) => {
       const t = (tipo ?? 'EGRESO') as TipoMovimiento;
       this.tipoSeleccionado.set(t);
       this.form.controls.categoriaId.setValue('');
     });
-
+ 
     this.cargarDatos();
   }
-
+ 
   protected abrirForm(): void {
     this.form.reset({
       cuentaId: '',
@@ -98,18 +99,18 @@ export class ReglasRecurrentes {
     this.exito.set(null);
     this.mostrandoForm.set(true);
   }
-
+ 
   protected cerrarForm(): void {
     if (this.guardando()) return;
     this.mostrandoForm.set(false);
   }
-
+ 
   protected guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-
+ 
     const raw = this.form.getRawValue();
     const dto: ReglaRecurrenteRequest = {
       cuentaId: Number(raw.cuentaId),
@@ -121,11 +122,11 @@ export class ReglasRecurrentes {
       frecuenciaDias: Number(raw.frecuenciaDias),
       proximaEjecucion: raw.proximaEjecucion,
     };
-
+ 
     this.guardando.set(true);
     this.error.set(null);
     this.exito.set(null);
-
+ 
     this.client.crearRegla(dto).subscribe({
       next: () => {
         this.guardando.set(false);
@@ -139,25 +140,25 @@ export class ReglasRecurrentes {
       },
     });
   }
-
+ 
   protected pedirDesactivar(regla: ReglaRecurrenteResponse): void {
     this.error.set(null);
     this.reglaADesactivar.set(regla);
   }
-
+ 
   protected cancelarDesactivar(): void {
     if (this.desactivando()) return;
     this.reglaADesactivar.set(null);
   }
-
+ 
   protected confirmarDesactivar(): void {
     const regla = this.reglaADesactivar();
     if (!regla) return;
-
+ 
     this.desactivando.set(true);
     this.error.set(null);
     this.exito.set(null);
-
+ 
     this.client.desactivarRegla(regla.id).subscribe({
       next: () => {
         this.desactivando.set(false);
@@ -172,14 +173,14 @@ export class ReglasRecurrentes {
       },
     });
   }
-
+ 
   protected reactivar(regla: ReglaRecurrenteResponse): void {
     if (this.reactivando()) return;
-
+ 
     this.reactivando.set(true);
     this.error.set(null);
     this.exito.set(null);
-
+ 
     this.client.reactivarRegla(regla.id).subscribe({
       next: () => {
         this.reactivando.set(false);
@@ -192,18 +193,40 @@ export class ReglasRecurrentes {
       },
     });
   }
-
+ 
+  protected ejecutarAhora(regla: ReglaRecurrenteResponse): void {
+    if (this.ejecutandoId() !== null) return;
+ 
+    this.ejecutandoId.set(regla.id);
+    this.error.set(null);
+    this.exito.set(null);
+ 
+    this.client.ejecutarAhora(regla.id).subscribe({
+      next: () => {
+        this.ejecutandoId.set(null);
+        this.exito.set(
+          `Se ejecutó «${regla.descripcion}»: el movimiento quedó registrado y el aviso por mail está en camino.`,
+        );
+        this.cargarDatos();
+      },
+      error: (err: unknown) => {
+        this.error.set(err instanceof HttpError ? err.message : 'No se pudo ejecutar la regla');
+        this.ejecutandoId.set(null);
+      },
+    });
+  }
+ 
   protected frecuenciaTexto(dias: number): string {
     if (dias === 7) return 'Semanal';
     if (dias === 15) return 'Quincenal';
     if (dias === 30) return 'Mensual';
     return `Cada ${dias} días`;
   }
-
+ 
   private cargarDatos(): void {
     this.cargando.set(true);
     this.error.set(null);
-
+ 
     forkJoin({
       reglas: this.client.listarReglas(),
       cuentas: this.client.listarCuentas(),
@@ -221,7 +244,7 @@ export class ReglasRecurrentes {
       },
     });
   }
-
+ 
   private hoyIso(): string {
     return new Date().toISOString().slice(0, 10);
   }
