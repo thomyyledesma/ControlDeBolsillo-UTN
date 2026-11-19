@@ -96,12 +96,32 @@
     <form [formGroup]="formMeta" (ngSubmit)="guardarMeta()" novalidate>
       <div class="campo">
         <label for="nombreMeta">Nombre</label>
-        <input id="nombreMeta" type="text" formControlName="nombre" />
+        <input
+          id="nombreMeta"
+          type="text"
+          formControlName="nombre"
+          [attr.aria-invalid]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid"
+          [attr.aria-describedby]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid ? 'nombreMeta-error' : null"
+        />
+        @if (formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid) {
+          <small id="nombreMeta-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 100 caracteres).</small>
+        }
       </div>
 
       <div class="campo">
         <label for="montoObjetivoMeta">Monto objetivo</label>
-        <input id="montoObjetivoMeta" type="number" min="0.01" step="0.01" formControlName="montoObjetivo" />
+        <input
+          id="montoObjetivoMeta"
+          type="number"
+          min="0.01"
+          step="0.01"
+          formControlName="montoObjetivo"
+          [attr.aria-invalid]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid"
+          [attr.aria-describedby]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid ? 'montoObjetivoMeta-error' : null"
+        />
+        @if (formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid) {
+          <small id="montoObjetivoMeta-error" class="campo-error" role="alert">El monto objetivo es obligatorio y debe ser mayor a 0.</small>
+        }
       </div>
 
       <div class="campo">
@@ -145,12 +165,20 @@
       @if (meta.cuentaId === null) {
         <div class="campo">
           <label for="cuentaOperacionMeta">Cuenta</label>
-          <select id="cuentaOperacionMeta" formControlName="cuentaId">
+          <select
+            id="cuentaOperacionMeta"
+            formControlName="cuentaId"
+            [attr.aria-invalid]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid"
+            [attr.aria-describedby]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid ? 'cuentaOperacionMeta-error' : null"
+          >
             <option value="">Seleccionar cuenta</option>
             @for (c of cuentasActivas(); track c.id) {
               <option [value]="c.id">{{ c.nombre }}</option>
             }
           </select>
+          @if (formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid) {
+            <small id="cuentaOperacionMeta-error" class="campo-error" role="alert">Elegí la cuenta para la operación.</small>
+          }
         </div>
       } @else {
         <p class="meta-ayuda">
@@ -160,7 +188,18 @@
 
       <div class="campo">
         <label for="montoOperacionMeta">Monto</label>
-        <input id="montoOperacionMeta" type="number" min="0.01" step="0.01" formControlName="monto" />
+        <input
+          id="montoOperacionMeta"
+          type="number"
+          min="0.01"
+          step="0.01"
+          formControlName="monto"
+          [attr.aria-invalid]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid"
+          [attr.aria-describedby]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid ? 'montoOperacionMeta-error' : null"
+        />
+        @if (formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid) {
+          <small id="montoOperacionMeta-error" class="campo-error" role="alert">El monto es obligatorio y debe ser mayor a 0.</small>
+        }
       </div>
 
       <div class="modal-acciones">

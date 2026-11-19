@@ -24,12 +24,20 @@
       <div class="filtro-fechas">
         <div class="filtro-campo">
           <label for="cuentaAlta">Cuenta</label>
-          <select id="cuentaAlta" formControlName="cuentaId">
+          <select
+            id="cuentaAlta"
+            formControlName="cuentaId"
+            [attr.aria-invalid]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid"
+            [attr.aria-describedby]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid ? 'cuentaAlta-error' : null"
+          >
             <option value="">Seleccionar</option>
             @for (c of cuentas(); track c.id) {
               <option [value]="c.id">{{ c.nombre }}</option>
             }
           </select>
+          @if (formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid) {
+            <small id="cuentaAlta-error" class="campo-error" role="alert">Elegí la cuenta del movimiento.</small>
+          }
         </div>
 
         <div class="filtro-campo">
@@ -42,28 +50,66 @@
 
         <div class="filtro-campo">
           <label for="categoriaAlta">Categoría</label>
-          <select id="categoriaAlta" formControlName="categoriaId">
+          <select
+            id="categoriaAlta"
+            formControlName="categoriaId"
+            [attr.aria-invalid]="formMovimiento.controls.categoriaId.touched && formMovimiento.controls.categoriaId.invalid"
+            [attr.aria-describedby]="formMovimiento.controls.categoriaId.touched && formMovimiento.controls.categoriaId.invalid ? 'categoriaAlta-error' : null"
+          >
             <option value="">Seleccionar</option>
             @for (cat of categoriasRegistro(); track cat.id) {
               <option [value]="cat.id">{{ cat.nombre }}</option>
             }
           </select>
+          @if (formMovimiento.controls.categoriaId.touched && formMovimiento.controls.categoriaId.invalid) {
+            <small id="categoriaAlta-error" class="campo-error" role="alert">Elegí la categoría del movimiento.</small>
+          }
         </div>
 
         <div class="filtro-campo">
           <label for="montoAlta">Monto</label>
-          <input id="montoAlta" type="number" min="0.01" step="0.01" formControlName="monto" />
+          <input
+            id="montoAlta"
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="monto"
+            [attr.aria-invalid]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid"
+            [attr.aria-describedby]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid ? 'montoAlta-error' : null"
+          />
+          @if (formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid) {
+            <small id="montoAlta-error" class="campo-error" role="alert">El monto es obligatorio y debe ser mayor a 0.</small>
+          }
         </div>
 
         <div class="filtro-campo">
           <label for="fechaAlta">Fecha</label>
-          <input id="fechaAlta" type="date" formControlName="fecha" />
+          <input
+            id="fechaAlta"
+            type="date"
+            [max]="fechaMaxima()"
+            formControlName="fecha"
+            [attr.aria-invalid]="formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid"
+            [attr.aria-describedby]="formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid ? 'fechaAlta-error' : null"
+          />
+          @if (formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid) {
+            <small id="fechaAlta-error" class="campo-error" role="alert">Ingresá una fecha válida, no posterior a hoy.</small>
+          }
         </div>
       </div>
 
       <div class="campo">
         <label for="descripcionAlta">Descripción (opcional)</label>
-        <input id="descripcionAlta" type="text" formControlName="descripcion" />
+        <input
+          id="descripcionAlta"
+          type="text"
+          formControlName="descripcion"
+          [attr.aria-invalid]="formMovimiento.controls.descripcion.touched && formMovimiento.controls.descripcion.invalid"
+          [attr.aria-describedby]="formMovimiento.controls.descripcion.touched && formMovimiento.controls.descripcion.invalid ? 'descripcionAlta-error' : null"
+        />
+        @if (formMovimiento.controls.descripcion.touched && formMovimiento.controls.descripcion.invalid) {
+          <small id="descripcionAlta-error" class="campo-error" role="alert">La descripción no puede superar los 200 caracteres.</small>
+        }
       </div>
 
       <div class="modal-acciones">

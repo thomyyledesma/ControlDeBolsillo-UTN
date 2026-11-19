@@ -82,6 +82,13 @@ body {
 
 .campo input::placeholder { color: #b3aea0; }
 
+.campo-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--error);
+}
+
 /* Botón primario */
 .btn {
   font-family: var(--font-body);
