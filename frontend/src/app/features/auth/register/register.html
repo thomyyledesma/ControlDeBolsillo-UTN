@@ -25,7 +25,12 @@
           autocomplete="name"
           placeholder="Juan Pérez"
           formControlName="nombre"
+          [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
+          [attr.aria-describedby]="form.controls.nombre.touched && form.controls.nombre.invalid ? 'nombre-error' : null"
         />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small id="nombre-error" class="campo-error" role="alert">El nombre es obligatorio.</small>
+        }
       </div>
 
       <div class="campo">
@@ -36,7 +41,18 @@
           autocomplete="email"
           placeholder="tu@email.com"
           formControlName="email"
+          [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+          [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'email-error' : null"
         />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small id="email-error" class="campo-error" role="alert">
+            @if (form.controls.email.hasError('required')) {
+              El email es obligatorio.
+            } @else {
+              Ingresá un email válido.
+            }
+          </small>
+        }
       </div>
 
       <div class="campo">
@@ -47,7 +63,18 @@
           autocomplete="new-password"
           placeholder="Mínimo 6 caracteres"
           formControlName="password"
+          [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+          [attr.aria-describedby]="form.controls.password.touched && form.controls.password.invalid ? 'password-error' : null"
         />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small id="password-error" class="campo-error" role="alert">
+            @if (form.controls.password.hasError('required')) {
+              La contraseña es obligatoria.
+            } @else {
+              La contraseña debe tener al menos 6 caracteres.
+            }
+          </small>
+        }
       </div>
 
       <button type="submit" class="btn btn-primario" [disabled]="enviando()">
