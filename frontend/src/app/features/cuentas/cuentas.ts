@@ -32,6 +32,7 @@ export class Cuentas {
   protected readonly editandoId = signal<number | null>(null);
   protected readonly cuentaAEliminar = signal<CuentaResponse | null>(null);
   protected readonly eliminando = signal(false);
+  protected readonly nombreDuplicado = signal<string | null>(null);
   protected readonly mostrandoTransferencia = signal(false);
   protected readonly transfiriendo = signal(false);
   protected readonly errorTransferencia = signal<string | null>(null);
@@ -110,6 +111,33 @@ export class Cuentas {
       return;
     }
 
+    // Solo al crear: si ya hay una cuenta con ese nombre, se pide confirmación.
+    if (this.editandoId() === null && this.yaExisteNombre(this.form.controls.nombre.value)) {
+      this.nombreDuplicado.set(this.form.controls.nombre.value.trim());
+      return;
+    }
+
+    this.enviarGuardado();
+  }
+
+  protected confirmarNombreDuplicado(): void {
+    this.nombreDuplicado.set(null);
+    this.enviarGuardado();
+  }
+
+  protected cancelarNombreDuplicado(): void {
+    if (this.guardando()) return;
+    this.nombreDuplicado.set(null);
+  }
+
+  private yaExisteNombre(nombre: string): boolean {
+    const buscado = nombre.trim().toLowerCase();
+    if (!buscado) return false;
+
+    return this.cuentas().some((c) => c.nombre.trim().toLowerCase() === buscado);
+  }
+
+  private enviarGuardado(): void {
     this.guardando.set(true);
     this.errorForm.set(null);
 

@@ -32,15 +32,32 @@
     <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
       <div class="campo">
         <label for="nombre">Nombre</label>
-        <input id="nombre" type="text" formControlName="nombre" />
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
+          [attr.aria-describedby]="form.controls.nombre.touched && form.controls.nombre.invalid ? 'nombre-error' : null"
+        />
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small id="nombre-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 50 caracteres).</small>
+        }
       </div>
 
       <div class="campo">
         <label for="tipo">Tipo</label>
-        <select id="tipo" formControlName="tipo">
+        <select
+          id="tipo"
+          formControlName="tipo"
+          [attr.aria-invalid]="form.controls.tipo.touched && form.controls.tipo.invalid"
+          [attr.aria-describedby]="form.controls.tipo.touched && form.controls.tipo.invalid ? 'tipo-error' : null"
+        >
           <option value="INGRESO">Ingreso</option>
           <option value="EGRESO">Egreso</option>
         </select>
+        @if (form.controls.tipo.touched && form.controls.tipo.invalid) {
+          <small id="tipo-error" class="campo-error" role="alert">Elegí el tipo de la categoría.</small>
+        }
       </div>
 
       <div class="campo">
