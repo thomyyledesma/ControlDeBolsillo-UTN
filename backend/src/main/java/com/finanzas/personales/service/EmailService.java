@@ -24,6 +24,18 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String remitente;
 
+    @Value("${email.brevo.api-key:}")
+    private String brevoApiKey;
+
+    @Value("${email.brevo.sender:}")
+    private String brevoSender;
+
+    @Value("${email.brevo.sender-name:Control de Bolsillo}")
+    private String brevoSenderName;
+
+    @Value("${email.brevo.base-url:https://api.brevo.com}")
+    private String brevoBaseUrl;
+
     @Value("${email.resend.api-key:}")
     private String resendApiKey;
 
@@ -34,7 +46,9 @@ public class EmailService {
     private String resendBaseUrl;
 
     public void enviar(String destino, String asunto, String cuerpo) {
-        if (usaResend()) {
+        if (usaBrevo()) {
+            enviarConBrevo(destino, asunto, cuerpo);
+        } else if (usaResend()) {
             enviarConResend(destino, asunto, cuerpo);
         } else {
             enviarPorSmtp(destino, asunto, cuerpo);
@@ -42,8 +56,16 @@ public class EmailService {
         log.info("[Email] Enviado a {} | asunto='{}'", destino, asunto);
     }
 
+    private boolean usaBrevo() {
+        return hayTexto(brevoApiKey) && hayTexto(brevoSender);
+    }
+
     private boolean usaResend() {
-        return resendApiKey != null && !resendApiKey.isBlank();
+        return hayTexto(resendApiKey);
+    }
+
+    private static boolean hayTexto(String valor) {
+        return valor != null && !valor.isBlank();
     }
 
     private void enviarPorSmtp(String destino, String asunto, String cuerpo) {
@@ -53,6 +75,15 @@ public class EmailService {
         mensaje.setSubject(asunto);
         mensaje.setText(cuerpo);
         mailSender.send(mensaje);
+    }
+
+    private void enviarConBrevo(String destino, String asunto, String cuerpo) {
+        restClient.post()
+                .uri(brevoBaseUrl + "/v3/smtp/email")
+                .header("api-key", brevoApiKey)
+                .body(construirPayloadBrevo(brevoSenderName, brevoSender, destino, asunto, cuerpo))
+                .retrieve()
+                .toBodilessEntity();
     }
 
     private void enviarConResend(String destino, String asunto, String cuerpo) {
@@ -70,5 +101,14 @@ public class EmailService {
                 "to", List.of(destino),
                 "subject", asunto,
                 "text", cuerpo);
+    }
+
+    static Map<String, Object> construirPayloadBrevo(
+            String nombreRemitente, String emailRemitente, String destino, String asunto, String cuerpo) {
+        return Map.of(
+                "sender", Map.of("name", nombreRemitente, "email", emailRemitente),
+                "to", List.of(Map.of("email", destino)),
+                "subject", asunto,
+                "textContent", cuerpo);
     }
 }
