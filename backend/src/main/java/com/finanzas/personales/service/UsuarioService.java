@@ -54,4 +54,10 @@ public class UsuarioService {
         usuario.setRol(Rol.PREMIUM);
         return usuarioRepository.save(usuario);
     }
+
+        public Usuario pasarAPremiumPorId(Long id) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setRol(Rol.PREMIUM);
+        return usuarioRepository.save(usuario);
+    }
 }
