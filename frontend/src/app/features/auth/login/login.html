@@ -25,7 +25,18 @@
           autocomplete="email"
           placeholder="tu@email.com"
           formControlName="email"
+          [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+          [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'email-error' : null"
         />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small id="email-error" class="campo-error" role="alert">
+            @if (form.controls.email.hasError('required')) {
+              El email es obligatorio.
+            } @else {
+              Ingresá un email válido.
+            }
+          </small>
+        }
       </div>
 
       <div class="campo">
@@ -36,7 +47,12 @@
           autocomplete="current-password"
           placeholder="••••••"
           formControlName="password"
+          [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+          [attr.aria-describedby]="form.controls.password.touched && form.controls.password.invalid ? 'password-error' : null"
         />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small id="password-error" class="campo-error" role="alert">La contraseña es obligatoria.</small>
+        }
       </div>
 
       <button type="submit" class="btn btn-primario" [disabled]="enviando()">
