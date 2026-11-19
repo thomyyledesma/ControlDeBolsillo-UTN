@@ -58,6 +58,19 @@
 .btn-link:hover { background: var(--crema); }
 .btn-link.peligro { color: var(--error); }
 
+/* --- Card base reutilizable (listas: movimientos, etc.) --- */
+.card {
+  background: #fff;
+  border: 1.5px solid var(--crema-700);
+  border-radius: var(--radio);
+  padding: 14px 16px;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+.card:hover {
+  border-color: var(--verde-500);
+  box-shadow: 0 2px 12px rgba(17, 48, 42, 0.06);
+}
+
 /* --- Modal --- */
 .modal-fondo {
   position: fixed;

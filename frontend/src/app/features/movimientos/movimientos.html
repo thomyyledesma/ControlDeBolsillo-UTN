@@ -168,26 +168,29 @@
 </form>
 
 @if (filtros.controls.categoriaId.value) {
-  <p style="margin: 8px 0 16px;">
+  <p class="total-acumulado">
     <strong>Total acumulado:</strong> {{ formatearMoneda(totalAcumulado()) }}
   </p>
 }
 
 @if (cargando()) {
-  <p>Cargando movimientos...</p>
+  <p class="estado">Cargando movimientos...</p>
 } @else if (!filtrados().length) {
-<p>No hay movimientos para esos filtros.</p>
+  <p class="estado">No hay movimientos para esos filtros.</p>
 } @else {
   <div class="mov-grupos">
     @for (m of filtrados(); track m.id) {
       <article class="card">
         <strong>{{ m.descripcion || 'Sin descripción' }}</strong><br />
-        {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} · {{ m.categoriaNombre || 'Sin categoría' }}<br />
-        <strong>{{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}</strong>
+        {{ formatearFecha(m.fecha) }} · {{ m.cuentaNombre }} ·
+        <span class="badge-cat">{{ m.categoriaNombre || 'Sin categoría' }}</span><br />
+        <strong [class.monto-ingreso]="m.tipo === 'INGRESO'" [class.monto-egreso]="m.tipo === 'EGRESO'">
+          {{ m.tipo === 'EGRESO' ? '-' : '+' }}{{ formatearMoneda(m.monto) }}
+        </strong>
 
-        <div style="margin-top:8px; display:flex; gap:8px;">
-          <button class="btn" type="button" (click)="empezarEdicion(m)">Editar</button>
-          <button class="btn" type="button" (click)="pedirEliminar(m)">Eliminar</button>
+        <div class="movimiento-acciones">
+          <button class="btn btn-chico" type="button" (click)="empezarEdicion(m)">Editar</button>
+          <button class="btn btn-chico btn-peligro" type="button" (click)="pedirEliminar(m)">Eliminar</button>
         </div>
       </article>
     }

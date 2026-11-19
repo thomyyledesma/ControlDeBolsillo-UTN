@@ -616,12 +616,21 @@
   outline: none;
   border-color: var(--ambar);
   box-shadow: 0 0 0 3px rgba(217, 138, 61, 0.18);
-}
-
-.mov-grupos {
+}.mov-grupos {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
+}
+
+.movimiento-acciones {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.total-acumulado {
+  margin: 8px 0 16px;
+  font-size: 14px;
 }
 
 .mov-grupo-fecha {
