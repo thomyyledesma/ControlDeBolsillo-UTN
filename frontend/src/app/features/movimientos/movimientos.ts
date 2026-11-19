@@ -1,9 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, timer } from 'rxjs';
 
 import { MovimientosClient } from './movimientos-client';
+import { fechaNoFutura, hoyIso } from './movimientos-fecha';
 import { CategoriaResponse, CuentaResponse, MovimientoRequest, MovimientoResponse, TipoMovimiento } from '../../core/models';
 import { HttpError } from '../../core/http/http-error';
 import { formatearMoneda, formatearFecha } from '../../shared/utils/format';
@@ -20,6 +21,7 @@ export class Movimientos {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly api = inject(MovimientosClient);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly cargando = signal(true);
   protected readonly guardando = signal(false);
@@ -48,8 +50,11 @@ export class Movimientos {
     categoriaId: ['', [Validators.required]],
     monto: [0, [Validators.required, Validators.min(0.01)]],
     descripcion: ['', [Validators.maxLength(200)]],
-    fecha: [''],
+    fecha: ['', [fechaNoFutura]],
   });
+
+  private readonly fechaHoy = signal(hoyIso());
+  protected readonly fechaMaxima = this.fechaHoy.asReadonly();
 
   private readonly filtrosValor = signal(this.filtros.getRawValue());
   private readonly tipoRegistro = signal<TipoMovimiento>('EGRESO');
@@ -112,6 +117,7 @@ export class Movimientos {
     }
 
     this.cargarDatos();
+    this.programarCambioDeDia();
   }
 
   protected abrirForm(): void {
@@ -226,6 +232,19 @@ export class Movimientos {
       categoriaId: '',
       tipo: '',
     });
+  }
+
+  private programarCambioDeDia(): void {
+    const ahora = new Date();
+    const proximaMedianoche = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1);
+
+    timer(proximaMedianoche.getTime() - ahora.getTime())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.fechaHoy.set(hoyIso());
+        this.formMovimiento.controls.fecha.updateValueAndValidity();
+        this.programarCambioDeDia();
+      });
   }
 
   private cargarDatos(): void {

@@ -33,6 +33,10 @@ export class ReglasRecurrentesClient {
     return this.http.delete<void>(`${this.base}/reglas-recurrentes/${id}`);
   }
 
+  reactivarRegla(id: number): Observable<void> {
+    return this.http.post<void>(`${this.base}/reglas-recurrentes/${id}/reactivar`, {});
+  }
+
   listarCuentas(): Observable<CuentaResponse[]> {
     return this.http.get<CuentaResponse[]>(`${this.base}/cuentas`);
   }
