@@ -106,6 +106,12 @@
 </app-modal>
 }
 
+@if (nombreDuplicado(); as nombre) {
+<app-confirm-dialog titulo="Ya tenés una cuenta con ese nombre"
+  [mensaje]="'Ya existe una cuenta llamada «' + nombre + '». ¿Querés crearla igual?'" textoConfirmar="Crear igual"
+  [procesando]="guardando()" (confirmar)="confirmarNombreDuplicado()" (cancelar)="cancelarNombreDuplicado()" />
+}
+
 @if (cuentaAEliminar(); as cuenta) {
 <app-confirm-dialog titulo="Eliminar cuenta"
   [mensaje]="'¿Seguro que querés eliminar «' + cuenta.nombre + '»? Esta acción no se puede deshacer.'"
