@@ -27,14 +27,14 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   padding: 0 12px 20px;
-}
-
-.sidebar-nav {
+}.sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
   flex: 1;
-}
+  min-height: 0;
+  overflow-y: auto;
+}
 
 .sidebar-link {
   display: flex;
