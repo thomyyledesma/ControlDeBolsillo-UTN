@@ -2,12 +2,24 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ReglaRecurrenteResponse, ReglaRecurrenteRequest, CuentaResponse, CategoriaResponse } from '../../core/models';
+import {
+  CategoriaResponse,
+  CuentaResponse,
+  ReglaRecurrenteRequest,
+  ReglaRecurrenteResponse,
+} from '../../core/models';
 
 @Service()
 export class ReglasRecurrentesClient {
-    private readonly http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly base = environment.apiUrl;
+
+  ejecutarAhora(id: number): Observable<ReglaRecurrenteResponse> {
+    return this.http.post<ReglaRecurrenteResponse>(
+      `${this.base}/reglas-recurrentes/${id}/ejecutar-ahora`,
+      {},
+    );
+  }
 
   listarReglas(): Observable<ReglaRecurrenteResponse[]> {
     return this.http.get<ReglaRecurrenteResponse[]>(`${this.base}/reglas-recurrentes`);

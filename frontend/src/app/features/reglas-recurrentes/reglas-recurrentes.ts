@@ -33,6 +33,7 @@ export class ReglasRecurrentes {
   protected readonly cargando = signal(true);
   protected readonly guardando = signal(false);
   protected readonly desactivando = signal(false);
+  protected readonly ejecutandoId = signal<number | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly exito = signal<string | null>(null);
 
@@ -168,6 +169,28 @@ export class ReglasRecurrentes {
         this.error.set(err instanceof HttpError ? err.message : 'No se pudo desactivar la regla');
         this.desactivando.set(false);
         this.reglaADesactivar.set(null);
+      },
+    });
+  }
+
+  protected ejecutarAhora(regla: ReglaRecurrenteResponse): void {
+    if (this.ejecutandoId() !== null) return;
+
+    this.ejecutandoId.set(regla.id);
+    this.error.set(null);
+    this.exito.set(null);
+
+    this.client.ejecutarAhora(regla.id).subscribe({
+      next: () => {
+        this.ejecutandoId.set(null);
+        this.exito.set(
+          `Se ejecutó «${regla.descripcion}»: el movimiento quedó registrado y el aviso por mail está en camino.`,
+        );
+        this.cargarDatos();
+      },
+      error: (err: unknown) => {
+        this.error.set(err instanceof HttpError ? err.message : 'No se pudo ejecutar la regla');
+        this.ejecutandoId.set(null);
       },
     });
   }
