@@ -1,6 +1,15 @@
 package com.finanzas.personales.service;
 
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.finanzas.personales.Exception.CategoriaNoEncontradaException;
 import com.finanzas.personales.Exception.PresupuestoInexistenteException;
 import com.finanzas.personales.Exception.ReglaNegocioException;
@@ -10,14 +19,8 @@ import com.finanzas.personales.model.Presupuesto;
 import com.finanzas.personales.model.Usuario;
 import com.finanzas.personales.repository.CategoriaRepository;
 import com.finanzas.personales.repository.PresupuestoRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 
 @Service
@@ -28,8 +31,17 @@ public class PresupuestoService {
     private final PresupuestoRepository presupuestoRepository;
     private final CategoriaRepository categoriaRepository;
 
+        private static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
+
+    private void validarPeriodoNoPasado(Integer mes, Integer anio) {
+        if (YearMonth.of(anio, mes).isBefore(YearMonth.now(ZONA))) {
+            throw new ReglaNegocioException("No se puede definir un presupuesto para un mes que ya pasó.");
+        }
+    }
+
     @Transactional
     public Presupuesto guardar(PresupuestoRequestDTO dto, Usuario usuario) {
+                validarPeriodoNoPasado(dto.getMes(), dto.getAnio());
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.getCategoriaId(), usuario.getId())
                 .orElseThrow(() -> new CategoriaNoEncontradaException("Categoria no encontrada"));
 
@@ -82,8 +94,11 @@ public class PresupuestoService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.getCategoriaId(), usuarioId)
                 .orElseThrow(() -> new CategoriaNoEncontradaException("Categoria no encontrada"));
 
-        // Validar que no exista otro presupuesto para la misma categoria/mes/año
-        boolean cambioMesAnioOCategoria = p.getMes() != dto.getMes() || p.getAnio() != dto.getAnio() || !p.getCategoria().getId().equals(categoria.getId());
+        boolean cambioPeriodo = !p.getMes().equals(dto.getMes()) || !p.getAnio().equals(dto.getAnio());
+        boolean cambioMesAnioOCategoria = cambioPeriodo || !p.getCategoria().getId().equals(categoria.getId());
+                if (cambioPeriodo) {
+            validarPeriodoNoPasado(dto.getMes(), dto.getAnio());
+        }
         if (cambioMesAnioOCategoria) {
             presupuestoRepository.findByUsuarioIdAndCategoriaIdAndMesAndAnio(usuarioId, dto.getCategoriaId(), dto.getMes(), dto.getAnio())
                     .ifPresent(duplicado -> {

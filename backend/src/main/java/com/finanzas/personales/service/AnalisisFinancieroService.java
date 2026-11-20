@@ -1,12 +1,11 @@
 package com.finanzas.personales.service;
 
-import com.finanzas.personales.Exception.ReglaNegocioException;
-import com.finanzas.personales.enums.TipoMovimiento;
-import com.finanzas.personales.model.Cuenta;
-import com.finanzas.personales.model.Movimiento;
-import com.finanzas.personales.model.Presupuesto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -14,10 +13,14 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import com.finanzas.personales.Exception.ReglaNegocioException;
+import com.finanzas.personales.enums.TipoMovimiento;
+import com.finanzas.personales.model.Cuenta;
+import com.finanzas.personales.model.Movimiento;
+import com.finanzas.personales.model.Presupuesto;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -38,6 +41,9 @@ public class AnalisisFinancieroService {
 
     @Value("${gemini.base-url:https://generativelanguage.googleapis.com/v1beta}")
     private String baseUrl;
+
+        @Value("${gemini.thinking-level:low}")
+    private String thinkingLevel;
 
     public String analizarFinanzas(Long usuarioId) {
         return consultarGemini(construirPrompt(usuarioId));
@@ -60,22 +66,21 @@ public class AnalisisFinancieroService {
             throw new ReglaNegocioException("El servicio de análisis no está configurado (falta GEMINI_API_KEY)");
         }
 
-        Map<String, Object> body = Map.of(
-                "contents", List.of(
-                        Map.of("parts", List.of(
-                                Map.of("text", prompt)
-                        ))
-                )
-        );
+         boolean reducirRazonamiento = thinkingLevel != null && !thinkingLevel.isBlank();
 
         try {
-            GeminiResponse respuesta = restClient.post()
-                    .uri(baseUrl + "/models/{model}:generateContent", model)
-                    .header("x-goog-api-key", apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(GeminiResponse.class);
+            GeminiResponse respuesta;
+            try {
+                respuesta = llamarGemini(construirBody(prompt, reducirRazonamiento));
+            } catch (RestClientResponseException e) {
+                // Si el modelo no acepta ese nivel de razonamiento, reintenta sin enviarlo.
+                if (reducirRazonamiento && e.getStatusCode().value() == 400) {
+                    log.warn("[Gemini] El modelo rechazó thinkingLevel='{}', se reintenta sin esa opción", thinkingLevel);
+                    respuesta = llamarGemini(construirBody(prompt, false));
+                } else {
+                    throw e;
+                }
+            }
 
             return extraerTexto(respuesta);
 
@@ -92,6 +97,31 @@ public class AnalisisFinancieroService {
             throw new ReglaNegocioException(
                     "Error inesperado al generar el análisis: " + e.getClass().getName() + " - " + e.getMessage());
         }
+    }
+
+        private Map<String, Object> construirBody(String prompt, boolean reducirRazonamiento) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("contents", List.of(
+                Map.of("parts", List.of(
+                        Map.of("text", prompt)
+                ))
+        ));
+        if (reducirRazonamiento) {
+            body.put("generationConfig", Map.of(
+                    "thinkingConfig", Map.of("thinkingLevel", thinkingLevel.trim())
+            ));
+        }
+        return body;
+    }
+
+    private GeminiResponse llamarGemini(Map<String, Object> body) {
+        return restClient.post()
+                .uri(baseUrl + "/models/{model}:generateContent", model)
+                .header("x-goog-api-key", apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(GeminiResponse.class);
     }
 
     private String construirPrompt(Long usuarioId) {

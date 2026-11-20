@@ -100,9 +100,24 @@ public class MetaAhorroService {
         return MetaAhorroResponseDTO.from(metaAhorroRepository.save(meta));
     }
 
-    @Transactional
+        @Transactional
     public void eliminar(Long metaId, Long usuarioId){
         MetaAhorro meta = obtenerMetaDelUsuario(metaId, usuarioId);
+
+        BigDecimal ahorrado = meta.getMontoActual();
+        if (ahorrado != null && ahorrado.compareTo(BigDecimal.ZERO) > 0) {
+            Cuenta cuenta = meta.getCuenta();
+            if (cuenta == null) {
+                throw new ReglaNegocioException(
+                        "Esta meta tiene dinero ahorrado y no está atada a una cuenta. "
+                                + "Retirá el dinero antes de eliminarla.");
+            }
+            cuenta.setSaldo(cuenta.getSaldo().add(ahorrado));
+            cuentaRepository.save(cuenta);
+            registrarMovimientoMeta(cuenta, ahorrado, TipoMovimiento.INGRESO,
+                    "Devolución por meta eliminada: " + meta.getNombre(), usuarioId);
+        }
+
         metaAhorroRepository.delete(meta);
     }
 

@@ -112,7 +112,7 @@ public class CuentaService {
 
         if (cuenta.getMovimientos() != null && !cuenta.getMovimientos().isEmpty()) {
             throw new ReglaNegocioException(
-                    "No se puede eliminar una cuenta con movimientos asociados. " + "Considera desactivarla en lugar de eliminarla.");
+                    "No se puede eliminar una cuenta que tiene movimientos. Eliminá primero sus movimientos.");
         }
 
         cuentaRepository.delete(cuenta);
