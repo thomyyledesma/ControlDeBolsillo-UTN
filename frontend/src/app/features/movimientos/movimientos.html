@@ -70,7 +70,7 @@
 
       <div class="filtro-campo">
         <label for="fechaAlta">Fecha</label>
-        <input id="fechaAlta" type="date" formControlName="fecha"
+        <input id="fechaAlta" type="date" formControlName="fecha" [max]="fechaMaxima()"
           [attr.aria-invalid]="formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid"
           [attr.aria-describedby]="formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid ? 'fechaAlta-error' : null" />
         @if (formMovimiento.controls.fecha.touched && formMovimiento.controls.fecha.invalid) {
