@@ -1,8 +1,12 @@
 package com.finanzas.personales.service;
 
+import java.math.BigDecimal;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.finanzas.personales.Exception.CredencialesInvalidasException;
 import com.finanzas.personales.Exception.EmailYaRegistradoException;
-import com.finanzas.personales.Exception.UsuarioNoEncontradoException;
 import com.finanzas.personales.dto.request.LoginRequestDTO;
 import com.finanzas.personales.dto.request.RegisterRequestDTO;
 import com.finanzas.personales.dto.response.AuthResponseDTO;
@@ -15,15 +19,13 @@ import com.finanzas.personales.repository.CategoriaRepository;
 import com.finanzas.personales.repository.CuentaRepository;
 import com.finanzas.personales.repository.UsuarioRepository;
 import com.finanzas.personales.security.JwtService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+        private static final String MENSAJE_CREDENCIALES = "Email o contraseña incorrectos";
 
     private final UsuarioRepository usuarioRepository;
     private final CuentaRepository cuentaRepository;
@@ -62,11 +64,11 @@ public class AuthService {
 
     public AuthResponseDTO login(LoginRequestDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
+                Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new CredencialesInvalidasException(MENSAJE_CREDENCIALES));
 
         if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
-            throw new CredencialesInvalidasException("Contraseña incorrecta");
+            throw new CredencialesInvalidasException(MENSAJE_CREDENCIALES);
         }
 
         String token = jwtService.generarToken(usuario.getEmail());
