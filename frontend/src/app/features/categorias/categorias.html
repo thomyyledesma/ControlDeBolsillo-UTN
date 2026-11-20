@@ -60,9 +60,25 @@
         }
       </div>
 
-      <div class="campo">
-        <label for="icono">Ícono (opcional)</label>
-        <input id="icono" type="text" formControlName="icono" />
+      <div class="mb-3">
+        <label for="icono" class="form-label">Ícono / Emoji</label>
+        <input
+          type="text"
+          id="icono"
+          class="form-control"
+          formControlName="icono"
+          placeholder="Ej: 🛒 (opcional)"
+          maxlength="8"
+        />
+
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <small class="text-muted">Sugeridos:</small>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🛒')">🛒</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🍔')">🍔</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🚗')">🚗</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('💰')">💰</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('💸')">💸</button>
+        </div>
       </div>
 
       <div class="modal-acciones">

@@ -29,7 +29,16 @@ public class CategoriaService {
 
         Categoria categoria = new Categoria();
         categoria.setNombre(dto.getNombre());
-        categoria.setIcono(dto.getIcono());
+        String icono = dto.getIcono();
+        if (icono == null || icono.trim().isEmpty()) {
+            if (dto.getTipo() == TipoMovimiento.INGRESO) {
+                categoria.setIcono("💰");
+            } else {
+                categoria.setIcono("💸");
+            }
+        } else {
+            categoria.setIcono(icono.trim());
+        }
         categoria.setTipo(dto.getTipo());
         categoria.setEsDefault(false);
         categoria.setUsuario(usuario);
@@ -77,7 +86,16 @@ public class CategoriaService {
         }
 
         categoria.setNombre(dto.getNombre());
-        categoria.setIcono(dto.getIcono());
+        String icono = dto.getIcono();
+        if (icono == null || icono.trim().isEmpty()) {
+            if (dto.getTipo() == TipoMovimiento.INGRESO) {
+                categoria.setIcono("💰");
+            } else {
+                categoria.setIcono("💸");
+            }
+        } else {
+            categoria.setIcono(icono.trim());
+        }
         categoria.setTipo(dto.getTipo());
 
         return CategoriaResponseDTO.from(categoriaRepository.save(categoria));

@@ -147,6 +147,10 @@ export class Categorias {
     this.cargar();
   }
 
+  protected seleccionarIcono(emoji: string): void {
+    this.form.patchValue({ icono: emoji });
+  }
+
   private resetForm(): void {
     this.editandoId.set(null);
     this.form.reset({
