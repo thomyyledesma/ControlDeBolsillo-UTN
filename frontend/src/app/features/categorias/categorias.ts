@@ -154,6 +154,7 @@ export class Categorias {
       tipo: c.tipo,
       icono: c.icono ?? '',
     });
+    this.selectorAbierto.set(false);
     this.mostrandoForm.set(true);
   }
 
