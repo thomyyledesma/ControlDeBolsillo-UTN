@@ -34,6 +34,6 @@ export class AppShell {
 
   protected salir(): void {
     this.auth.logout();
-    void this.router.navigateByUrl('/login');
+    void this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }

@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -36,6 +37,17 @@ export class Perfil {
       [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
     ],
   });
+
+  constructor() {
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.error.set(null);
+      this.exito.set(false);
+    });
+    this.passwordForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.errorPassword.set(null);
+      this.exitoPassword.set(false);
+    });
+  }
 
   protected guardar(): void {
     if (this.form.invalid) {

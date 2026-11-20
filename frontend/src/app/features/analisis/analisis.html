@@ -24,11 +24,11 @@
     <div class="analisis-fechas">
         <div class="filtro-campo">
             <label for="desde">Desde</label>
-            <input id="desde" type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" />
+            <input id="desde" type="date" [max]="hoy" [ngModel]="desde()" (ngModelChange)="desde.set($event)" />
         </div>
         <div class="filtro-campo">
             <label for="hasta">Hasta</label>
-            <input id="hasta" type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" />
+            <input id="hasta" type="date" [max]="hoy" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" />
         </div>
     </div>
     @if (errorPeriodo(); as msg) {

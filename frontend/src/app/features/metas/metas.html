@@ -22,206 +22,174 @@
 </div>
 
 @if (exito(); as msg) {
-  <div class="alerta-exito" role="status">{{ msg }}</div>
+<div class="alerta-exito" role="status">{{ msg }}</div>
 }
 
-@if (error(); as msg) {
-  <div class="alerta-error" role="alert">{{ msg }}</div>
+@if (error() && !mostrandoFormMeta() && !metaOperando()) {
+<div class="alerta-error" role="alert">{{ error() }}</div>
 }
 
 @if (cargando()) {
-  <p>Cargando metas...</p>
+<p>Cargando metas...</p>
 } @else if (!metas().length) {
-  <p>No hay metas para ese filtro.</p>
+<p>No hay metas para ese filtro.</p>
 } @else {
-  <div class="metas-grid">
-    @for (meta of metas(); track meta.id) {
-      <article class="meta-card" [class.cumplida]="meta.cumplida">
-        @if (meta.cumplida) {
-          <span class="meta-cumplida-badge">Cumplida</span>
-        }
-
-        <h2 class="meta-card-nombre">{{ meta.nombre }}</h2>
-        <div class="meta-card-fecha">
-          {{ meta.fechaLimite ? ('Límite: ' + fecha(meta.fechaLimite)) : 'Sin fecha límite' }}
-        </div>
-
-        <div class="meta-montos">
-          <span class="meta-actual">{{ moneda(meta.montoActual) }}</span>
-          <span class="meta-objetivo">de {{ moneda(meta.montoObjetivo) }}</span>
-        </div>
-
-        <div class="barra">
-          <div
-            class="barra-relleno meta"
-            [class.completa]="meta.cumplida"
-            [style.width.%]="porcentaje(meta)"
-          ></div>
-        </div>
-
-        <div class="meta-pct">
-          {{ porcentaje(meta) }}% completado · Falta {{ moneda(pendiente(meta)) }}
-        </div>
-
-        <div class="meta-card-acciones">
-          <button class="btn btn-secundario btn-auto" type="button" (click)="abrirDepositar(meta)">
-            Depositar
-          </button>
-          <button
-            class="btn btn-secundario btn-auto"
-            type="button"
-            [disabled]="meta.montoActual <= 0"
-            (click)="abrirRetirar(meta)"
-          >
-            Retirar
-          </button>
-          <button class="btn btn-secundario btn-auto" type="button" (click)="abrirFormEditar(meta)">
-            Editar
-          </button>
-          <button class="btn btn-peligro btn-auto" type="button" (click)="pedirEliminar(meta)">
-            Eliminar
-          </button>
-        </div>
-      </article>
+<div class="metas-grid">
+  @for (meta of metas(); track meta.id) {
+  <article class="meta-card" [class.cumplida]="meta.cumplida">
+    @if (meta.cumplida) {
+    <span class="meta-cumplida-badge">Cumplida</span>
     }
-  </div>
+
+    <h2 class="meta-card-nombre">{{ meta.nombre }}</h2>
+    <div class="meta-card-fecha">
+      {{ meta.fechaLimite ? ('Límite: ' + fecha(meta.fechaLimite)) : 'Sin fecha límite' }}
+    </div>
+
+    <div class="meta-montos">
+      <span class="meta-actual">{{ moneda(meta.montoActual) }}</span>
+      <span class="meta-objetivo">de {{ moneda(meta.montoObjetivo) }}</span>
+    </div>
+
+    <div class="barra">
+      <div class="barra-relleno meta" [class.completa]="meta.cumplida" [style.width.%]="porcentaje(meta)"></div>
+    </div>
+
+    <div class="meta-pct">
+      {{ porcentaje(meta) }}% completado · Falta {{ moneda(pendiente(meta)) }}
+    </div>
+
+    <div class="meta-card-acciones">
+      <button class="btn btn-secundario btn-auto" type="button" (click)="abrirDepositar(meta)">
+        Depositar
+      </button>
+      <button class="btn btn-secundario btn-auto" type="button" [disabled]="meta.montoActual <= 0"
+        (click)="abrirRetirar(meta)">
+        Retirar
+      </button>
+      <button class="btn btn-secundario btn-auto" type="button" (click)="abrirFormEditar(meta)">
+        Editar
+      </button>
+      <button class="btn btn-peligro btn-auto" type="button" (click)="pedirEliminar(meta)">
+        Eliminar
+      </button>
+    </div>
+  </article>
+  }
+</div>
 }
 
 @if (mostrandoFormMeta()) {
-  <app-modal
-    [titulo]="editandoId() === null ? 'Nueva meta de ahorro' : 'Editar meta de ahorro'"
-    subtitulo="Definí nombre, objetivo y fecha límite opcional."
-    (cerrar)="cerrarFormMeta()"
-  >
-    <form [formGroup]="formMeta" (ngSubmit)="guardarMeta()" novalidate>
-      <div class="campo">
-        <label for="nombreMeta">Nombre</label>
-        <input
-          id="nombreMeta"
-          type="text"
-          formControlName="nombre"
-          [attr.aria-invalid]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid"
-          [attr.aria-describedby]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid ? 'nombreMeta-error' : null"
-        />
-        @if (formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid) {
-          <small id="nombreMeta-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 100 caracteres).</small>
+<app-modal [titulo]="editandoId() === null ? 'Nueva meta de ahorro' : 'Editar meta de ahorro'"
+  subtitulo="Definí nombre, objetivo y fecha límite opcional." [error]="error()" (cerrar)="cerrarFormMeta()">
+  <form [formGroup]="formMeta" (ngSubmit)="guardarMeta()" novalidate>
+    <div class="campo">
+      <label for="nombreMeta">Nombre</label>
+      <input id="nombreMeta" type="text" formControlName="nombre"
+        [attr.aria-invalid]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid"
+        [attr.aria-describedby]="formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid ? 'nombreMeta-error' : null" />
+      @if (formMeta.controls.nombre.touched && formMeta.controls.nombre.invalid) {
+      <small id="nombreMeta-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 100
+        caracteres).</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="montoObjetivoMeta">Monto objetivo</label>
+      <input id="montoObjetivoMeta" type="number" min="0.01" step="0.01" formControlName="montoObjetivo"
+        [attr.aria-invalid]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid"
+        [attr.aria-describedby]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid ? 'montoObjetivoMeta-error' : null" />
+      @if (formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid) {
+      <small id="montoObjetivoMeta-error" class="campo-error" role="alert">El monto objetivo es obligatorio y debe ser
+        mayor a 0.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <input id="fechaLimiteMeta" type="date" [min]="hoy" formControlName="fechaLimite" />
+      @if (formMeta.controls.fechaLimite.hasError('fechaPasada')) {
+      <small id="fechaLimiteMeta-error" class="campo-error" role="alert">La fecha límite no puede ser anterior a
+        hoy.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="cuentaMeta">Cuenta por defecto (opcional)</label>
+      <select id="cuentaMeta" formControlName="cuentaId">
+        <option value="">Sin cuenta fija</option>
+        @for (c of cuentasActivas(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
         }
-      </div>
+      </select>
+    </div>
 
-      <div class="campo">
-        <label for="montoObjetivoMeta">Monto objetivo</label>
-        <input
-          id="montoObjetivoMeta"
-          type="number"
-          min="0.01"
-          step="0.01"
-          formControlName="montoObjetivo"
-          [attr.aria-invalid]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid"
-          [attr.aria-describedby]="formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid ? 'montoObjetivoMeta-error' : null"
-        />
-        @if (formMeta.controls.montoObjetivo.touched && formMeta.controls.montoObjetivo.invalid) {
-          <small id="montoObjetivoMeta-error" class="campo-error" role="alert">El monto objetivo es obligatorio y debe ser mayor a 0.</small>
-        }
-      </div>
-
-      <div class="campo">
-        <label for="fechaLimiteMeta">Fecha límite (opcional)</label>
-        <input id="fechaLimiteMeta" type="date" formControlName="fechaLimite" />
-      </div>
-
-      <div class="campo">
-        <label for="cuentaMeta">Cuenta por defecto (opcional)</label>
-        <select id="cuentaMeta" formControlName="cuentaId">
-          <option value="">Sin cuenta fija</option>
-          @for (c of cuentasActivas(); track c.id) {
-            <option [value]="c.id">{{ c.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="modal-acciones">
-        <button class="btn btn-secundario" type="button" (click)="cerrarFormMeta()" [disabled]="guardandoMeta()">
-          Cancelar
-        </button>
-        <button class="btn btn-primario" type="submit" [disabled]="guardandoMeta()">
-          {{ guardandoMeta() ? 'Guardando...' : (editandoId() === null ? 'Crear meta' : 'Guardar cambios') }}
-        </button>
-      </div>
-    </form>
-  </app-modal>
+    <div class="modal-acciones">
+      <button class="btn btn-secundario" type="button" (click)="cerrarFormMeta()" [disabled]="guardandoMeta()">
+        Cancelar
+      </button>
+      <button class="btn btn-primario" type="submit" [disabled]="guardandoMeta()">
+        {{ guardandoMeta() ? 'Guardando...' : (editandoId() === null ? 'Crear meta' : 'Guardar cambios') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
 }
 
 @if (metaOperando(); as meta) {
-  <app-modal
-    [titulo]="tituloMovimiento()"
-    [subtitulo]="'Meta: ' + meta.nombre"
-    (cerrar)="cerrarMovimiento()"
-  >
-    <form [formGroup]="formMovimiento" (ngSubmit)="guardarMovimiento()" novalidate>
-      <p class="meta-ayuda">
-        Saldo actual en meta: <strong>{{ moneda(meta.montoActual) }}</strong>
-      </p>
+<app-modal [titulo]="tituloMovimiento()" [subtitulo]="'Meta: ' + meta.nombre" [error]="error()"
+  (cerrar)="cerrarMovimiento()">
+  <form [formGroup]="formMovimiento" (ngSubmit)="guardarMovimiento()" novalidate>
+    <p class="meta-ayuda">
+      Saldo actual en meta: <strong>{{ moneda(meta.montoActual) }}</strong>
+    </p>
 
-      @if (meta.cuentaId === null) {
-        <div class="campo">
-          <label for="cuentaOperacionMeta">Cuenta</label>
-          <select
-            id="cuentaOperacionMeta"
-            formControlName="cuentaId"
-            [attr.aria-invalid]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid"
-            [attr.aria-describedby]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid ? 'cuentaOperacionMeta-error' : null"
-          >
-            <option value="">Seleccionar cuenta</option>
-            @for (c of cuentasActivas(); track c.id) {
-              <option [value]="c.id">{{ c.nombre }}</option>
-            }
-          </select>
-          @if (formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid) {
-            <small id="cuentaOperacionMeta-error" class="campo-error" role="alert">Elegí la cuenta para la operación.</small>
-          }
-        </div>
-      } @else {
-        <p class="meta-ayuda">
-          Se usará la cuenta asociada: <strong>{{ cuentaAsignadaNombre() }}</strong>
-        </p>
-      }
-
-      <div class="campo">
-        <label for="montoOperacionMeta">Monto</label>
-        <input
-          id="montoOperacionMeta"
-          type="number"
-          min="0.01"
-          step="0.01"
-          formControlName="monto"
-          [attr.aria-invalid]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid"
-          [attr.aria-describedby]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid ? 'montoOperacionMeta-error' : null"
-        />
-        @if (formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid) {
-          <small id="montoOperacionMeta-error" class="campo-error" role="alert">El monto es obligatorio y debe ser mayor a 0.</small>
+    @if (meta.cuentaId === null) {
+    <div class="campo">
+      <label for="cuentaOperacionMeta">Cuenta</label>
+      <select id="cuentaOperacionMeta" formControlName="cuentaId"
+        [attr.aria-invalid]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid"
+        [attr.aria-describedby]="formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid ? 'cuentaOperacionMeta-error' : null">
+        <option value="">Seleccionar cuenta</option>
+        @for (c of cuentasActivas(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
         }
-      </div>
+      </select>
+      @if (formMovimiento.controls.cuentaId.touched && formMovimiento.controls.cuentaId.invalid) {
+      <small id="cuentaOperacionMeta-error" class="campo-error" role="alert">Elegí la cuenta para la operación.</small>
+      }
+    </div>
+    } @else {
+    <p class="meta-ayuda">
+      Se usará la cuenta asociada: <strong>{{ cuentaAsignadaNombre() }}</strong>
+    </p>
+    }
 
-      <div class="modal-acciones">
-        <button class="btn btn-secundario" type="button" (click)="cerrarMovimiento()" [disabled]="guardandoMovimiento()">
-          Cancelar
-        </button>
-        <button class="btn btn-primario" type="submit" [disabled]="guardandoMovimiento()">
-          {{ guardandoMovimiento() ? 'Procesando...' : (accionMovimiento() === 'DEPOSITAR' ? 'Confirmar depósito' : 'Confirmar retiro') }}
-        </button>
-      </div>
-    </form>
-  </app-modal>
+    <div class="campo">
+      <label for="montoOperacionMeta">Monto</label>
+      <input id="montoOperacionMeta" type="number" min="0.01" step="0.01" formControlName="monto"
+        [attr.aria-invalid]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid"
+        [attr.aria-describedby]="formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid ? 'montoOperacionMeta-error' : null" />
+      @if (formMovimiento.controls.monto.touched && formMovimiento.controls.monto.invalid) {
+      <small id="montoOperacionMeta-error" class="campo-error" role="alert">El monto es obligatorio y debe ser mayor a
+        0.</small>
+      }
+    </div>
+
+    <div class="modal-acciones">
+      <button class="btn btn-secundario" type="button" (click)="cerrarMovimiento()" [disabled]="guardandoMovimiento()">
+        Cancelar
+      </button>
+      <button class="btn btn-primario" type="submit" [disabled]="guardandoMovimiento()">
+        {{ guardandoMovimiento() ? 'Procesando...' : (accionMovimiento() === 'DEPOSITAR' ? 'Confirmar depósito' :
+        'Confirmar retiro') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
 }
 
 @if (metaAEliminar(); as meta) {
-  <app-confirm-dialog
-    titulo="Eliminar meta"
-    [mensaje]="'¿Seguro que querés eliminar «' + meta.nombre + '»?'"
-    textoConfirmar="Eliminar"
-    [peligro]="true"
-    [procesando]="eliminando()"
-    (confirmar)="confirmarEliminar()"
-    (cancelar)="cancelarEliminar()"
-  />
+<app-confirm-dialog titulo="Eliminar meta" [mensaje]="'¿Seguro que querés eliminar «' + meta.nombre + '»?'"
+  textoConfirmar="Eliminar" [peligro]="true" [procesando]="eliminando()" (confirmar)="confirmarEliminar()"
+  (cancelar)="cancelarEliminar()" />
 }

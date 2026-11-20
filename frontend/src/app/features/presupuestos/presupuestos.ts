@@ -42,11 +42,46 @@ export class Presupuestos {
 
   protected readonly presupuestosOrdenados = computed(() =>
     [...this.presupuestos()].sort(
-      (a, b) => b.anio - a.anio || b.mes - a.mes || a.categoriaNombre.localeCompare(b.categoriaNombre),
+      (a, b) =>
+        b.anio - a.anio || b.mes - a.mes || a.categoriaNombre.localeCompare(b.categoriaNombre),
     ),
   );
 
   protected readonly moneda = formatearMoneda;
+
+  protected readonly meses = [
+    { valor: 1, nombre: 'Enero' },
+    { valor: 2, nombre: 'Febrero' },
+    { valor: 3, nombre: 'Marzo' },
+    { valor: 4, nombre: 'Abril' },
+    { valor: 5, nombre: 'Mayo' },
+    { valor: 6, nombre: 'Junio' },
+    { valor: 7, nombre: 'Julio' },
+    { valor: 8, nombre: 'Agosto' },
+    { valor: 9, nombre: 'Septiembre' },
+    { valor: 10, nombre: 'Octubre' },
+    { valor: 11, nombre: 'Noviembre' },
+    { valor: 12, nombre: 'Diciembre' },
+  ];
+
+  protected anios(): number[] {
+    const actual = this.hoy.getFullYear();
+    const lista = [actual, actual + 1, actual + 2, actual + 3];
+    const elegido = Number(this.form.controls.anio.value);
+    return lista.includes(elegido) ? lista : [elegido, ...lista].sort((a, b) => a - b);
+  }
+
+  protected mesPasado(mes: number): boolean {
+    return (
+      this.editandoId() === null &&
+      Number(this.form.controls.anio.value) === this.hoy.getFullYear() &&
+      mes < this.hoy.getMonth() + 1
+    );
+  }
+
+  private periodoPasado(mes: number, anio: number): boolean {
+    return anio * 12 + mes < this.hoy.getFullYear() * 12 + (this.hoy.getMonth() + 1);
+  }
 
   constructor() {
     this.cargarTodo();
@@ -66,7 +101,9 @@ export class Presupuestos {
         this.cargando.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar los presupuestos');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudieron cargar los presupuestos',
+        );
         this.cargando.set(false);
       },
     });
@@ -117,22 +154,34 @@ export class Presupuestos {
       anio: Number(raw.anio),
     };
 
+    const id = this.editandoId();
+    const original = this.presupuestos().find((p) => p.id === id);
+    const cambioPeriodo = !original || original.mes !== dto.mes || original.anio !== dto.anio;
+    if (cambioPeriodo && this.periodoPasado(dto.mes, dto.anio)) {
+      this.error.set('No se puede definir un presupuesto para un mes que ya pasó.');
+      return;
+    }
+
     this.guardando.set(true);
     this.error.set(null);
     this.exito.set(null);
-
-    const id = this.editandoId();
     const req$ = id === null ? this.client.crear(dto) : this.client.actualizar(id, dto);
 
     req$.subscribe({
       next: () => {
         this.guardando.set(false);
         this.mostrandoForm.set(false);
-        this.exito.set(id === null ? 'Presupuesto creado correctamente.' : 'Presupuesto actualizado correctamente.');
+        this.exito.set(
+          id === null
+            ? 'Presupuesto creado correctamente.'
+            : 'Presupuesto actualizado correctamente.',
+        );
         this.cargarTodo();
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudo guardar el presupuesto');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudo guardar el presupuesto',
+        );
         this.guardando.set(false);
       },
     });
@@ -162,7 +211,9 @@ export class Presupuestos {
         this.cargarTodo();
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudo eliminar el presupuesto');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudo eliminar el presupuesto',
+        );
         this.eliminando.set(false);
         this.presupuestoAEliminar.set(null);
       },

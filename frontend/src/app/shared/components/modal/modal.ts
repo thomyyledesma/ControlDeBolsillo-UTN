@@ -8,5 +8,6 @@ import { Component, input, output } from '@angular/core';
 export class Modal {
   readonly titulo = input.required<string>();
   readonly subtitulo = input<string>();
+  readonly error = input<string | null>(null);
   readonly cerrar = output<void>();
 }

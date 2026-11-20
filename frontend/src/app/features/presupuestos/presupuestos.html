@@ -9,143 +9,118 @@
 </header>
 
 @if (exito(); as msg) {
-  <div class="alerta-exito" role="status">{{ msg }}</div>
+<div class="alerta-exito" role="status">{{ msg }}</div>
 }
 
-@if (error(); as msg) {
-  <div class="alerta-error" role="alert">{{ msg }}</div>
+@if (error() && !mostrandoForm()) {
+<div class="alerta-error" role="alert">{{ error() }}</div>
 }
 
 @if (cargando()) {
-  <p>Cargando presupuestos...</p>
+<p>Cargando presupuestos...</p>
 } @else if (!presupuestosOrdenados().length) {
-  <div class="card cuentas-vacio"><p>No tenés presupuestos cargados.</p></div>
+<div class="card cuentas-vacio">
+  <p>No tenés presupuestos cargados.</p>
+</div>
 } @else {
-  <div class="presupuestos-grid">
-    @for (p of presupuestosOrdenados(); track p.id) {
-      <article class="card presupuesto-card">
-        <div class="presupuesto-header">
-          <strong>{{ p.categoriaNombre }}</strong>
-          <span>{{ periodo(p) }}</span>
-        </div>
+<div class="presupuestos-grid">
+  @for (p of presupuestosOrdenados(); track p.id) {
+  <article class="card presupuesto-card">
+    <div class="presupuesto-header">
+      <strong>{{ p.categoriaNombre }}</strong>
+      <span>{{ periodo(p) }}</span>
+    </div>
 
-        <div class="presupuesto-totales">
-          <span>Límite: <strong>{{ moneda(p.montoLimite) }}</strong></span>
-          <span>Consumido: <strong>{{ moneda(p.montoConsumido) }}</strong></span>
-        </div>
+    <div class="presupuesto-totales">
+      <span>Límite: <strong>{{ moneda(p.montoLimite) }}</strong></span>
+      <span>Consumido: <strong>{{ moneda(p.montoConsumido) }}</strong></span>
+    </div>
 
-        <div class="progreso-outer" [class.alerta]="estaExcedido(p)">
-          <div class="progreso-inner" [style.width.%]="barraPorcentaje(p)"></div>
-        </div>
+    <div class="progreso-outer" [class.alerta]="estaExcedido(p)">
+      <div class="progreso-inner" [style.width.%]="barraPorcentaje(p)"></div>
+    </div>
 
-        <div class="presupuesto-pie">
-          <span>{{ porcentajeTexto(p) }} consumido</span>
-          @if (estaExcedido(p)) {
-            <span class="estado-alerta">Excedido: {{ moneda(excedido(p)) }}</span>
-          } @else {
-            <span>Restante: {{ moneda(restante(p)) }}</span>
-          }
-        </div>
+    <div class="presupuesto-pie">
+      <span>{{ porcentajeTexto(p) }} consumido</span>
+      @if (estaExcedido(p)) {
+      <span class="estado-alerta">Excedido: {{ moneda(excedido(p)) }}</span>
+      } @else {
+      <span>Restante: {{ moneda(restante(p)) }}</span>
+      }
+    </div>
 
-        <div class="presupuesto-acciones">
-          <button class="btn btn-secundario" type="button" (click)="abrirEditar(p)">Editar</button>
-          <button class="btn btn-peligro" type="button" (click)="pedirEliminar(p)">Eliminar</button>
-        </div>
-      </article>
-    }
-  </div>
+    <div class="presupuesto-acciones">
+      <button class="btn btn-secundario" type="button" (click)="abrirEditar(p)">Editar</button>
+      <button class="btn btn-peligro" type="button" (click)="pedirEliminar(p)">Eliminar</button>
+    </div>
+  </article>
+  }
+</div>
 }
 
 @if (mostrandoForm()) {
-  <app-modal
-    [titulo]="editandoId() === null ? 'Nuevo presupuesto' : 'Editar presupuesto'"
-    [subtitulo]="'Definí el monto límite por categoría y mes.'"
-    (cerrar)="cerrarForm()"
-  >
-    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
-      <div class="campo">
-        <label for="categoriaId">Categoría (egreso)</label>
-        <select
-          id="categoriaId"
-          formControlName="categoriaId"
-          [attr.aria-invalid]="form.controls.categoriaId.touched && form.controls.categoriaId.invalid"
-          [attr.aria-describedby]="form.controls.categoriaId.touched && form.controls.categoriaId.invalid ? 'categoriaId-error' : null"
-        >
-          <option value="">Seleccionar</option>
-          @for (c of categorias(); track c.id) {
-            <option [value]="c.id">{{ c.nombre }}</option>
-          }
-        </select>
-        @if (form.controls.categoriaId.touched && form.controls.categoriaId.invalid) {
-          <small id="categoriaId-error" class="campo-error" role="alert">Elegí una categoría de egreso.</small>
+<app-modal [titulo]="editandoId() === null ? 'Nuevo presupuesto' : 'Editar presupuesto'"
+  [subtitulo]="'Definí el monto límite por categoría y mes.'" [error]="error()" (cerrar)="cerrarForm()">
+  <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <div class="campo">
+      <label for="categoriaId">Categoría (egreso)</label>
+      <select id="categoriaId" formControlName="categoriaId"
+        [attr.aria-invalid]="form.controls.categoriaId.touched && form.controls.categoriaId.invalid"
+        [attr.aria-describedby]="form.controls.categoriaId.touched && form.controls.categoriaId.invalid ? 'categoriaId-error' : null">
+        <option value="">Seleccionar</option>
+        @for (c of categorias(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
         }
-      </div>
+      </select>
+      @if (form.controls.categoriaId.touched && form.controls.categoriaId.invalid) {
+      <small id="categoriaId-error" class="campo-error" role="alert">Elegí una categoría de egreso.</small>
+      }
+    </div>
 
-      <div class="campo">
-        <label for="montoLimite">Monto límite</label>
-        <input
-          id="montoLimite"
-          type="number"
-          min="0.01"
-          step="0.01"
-          formControlName="montoLimite"
-          [attr.aria-invalid]="form.controls.montoLimite.touched && form.controls.montoLimite.invalid"
-          [attr.aria-describedby]="form.controls.montoLimite.touched && form.controls.montoLimite.invalid ? 'montoLimite-error' : null"
-        />
-        @if (form.controls.montoLimite.touched && form.controls.montoLimite.invalid) {
-          <small id="montoLimite-error" class="campo-error" role="alert">El monto límite es obligatorio y debe ser mayor a 0.</small>
+    <div class="campo">
+      <label for="montoLimite">Monto límite</label>
+      <input id="montoLimite" type="number" min="0.01" step="0.01" formControlName="montoLimite"
+        [attr.aria-invalid]="form.controls.montoLimite.touched && form.controls.montoLimite.invalid"
+        [attr.aria-describedby]="form.controls.montoLimite.touched && form.controls.montoLimite.invalid ? 'montoLimite-error' : null" />
+      @if (form.controls.montoLimite.touched && form.controls.montoLimite.invalid) {
+      <small id="montoLimite-error" class="campo-error" role="alert">El monto límite es obligatorio y debe ser mayor a
+        0.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="mes">Mes</label>
+      <select id="mes" formControlName="mes"
+        [attr.aria-invalid]="form.controls.mes.touched && form.controls.mes.invalid">
+        @for (m of meses; track m.valor) {
+        <option [ngValue]="m.valor" [disabled]="mesPasado(m.valor)">{{ m.nombre }}</option>
         }
-      </div>
+      </select>
+    </div>
 
-      <div class="campo">
-        <label for="mes">Mes</label>
-        <input
-          id="mes"
-          type="number"
-          min="1"
-          max="12"
-          formControlName="mes"
-          [attr.aria-invalid]="form.controls.mes.touched && form.controls.mes.invalid"
-          [attr.aria-describedby]="form.controls.mes.touched && form.controls.mes.invalid ? 'mes-error' : null"
-        />
-        @if (form.controls.mes.touched && form.controls.mes.invalid) {
-          <small id="mes-error" class="campo-error" role="alert">El mes debe ser un número entre 1 y 12.</small>
+    <div class="campo">
+      <label for="anio">Año</label>
+      <select id="anio" formControlName="anio"
+        [attr.aria-invalid]="form.controls.anio.touched && form.controls.anio.invalid">
+        @for (a of anios(); track a) {
+        <option [ngValue]="a">{{ a }}</option>
         }
-      </div>
+      </select>
+    </div>
 
-      <div class="campo">
-        <label for="anio">Año</label>
-        <input
-          id="anio"
-          type="number"
-          min="2000"
-          formControlName="anio"
-          [attr.aria-invalid]="form.controls.anio.touched && form.controls.anio.invalid"
-          [attr.aria-describedby]="form.controls.anio.touched && form.controls.anio.invalid ? 'anio-error' : null"
-        />
-        @if (form.controls.anio.touched && form.controls.anio.invalid) {
-          <small id="anio-error" class="campo-error" role="alert">El año debe ser 2000 o posterior.</small>
-        }
-      </div>
-
-      <div class="modal-acciones">
-        <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">Cancelar</button>
-        <button class="btn btn-primario" type="submit" [disabled]="guardando()">
-          {{ guardando() ? 'Guardando...' : (editandoId() === null ? 'Crear presupuesto' : 'Guardar cambios') }}
-        </button>
-      </div>
-    </form>
-  </app-modal>
+    <div class="modal-acciones">
+      <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">Cancelar</button>
+      <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (editandoId() === null ? 'Crear presupuesto' : 'Guardar cambios') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
 }
 
 @if (presupuestoAEliminar(); as p) {
-  <app-confirm-dialog
-    titulo="Eliminar presupuesto"
-    [mensaje]="'¿Seguro que querés eliminar el presupuesto de «' + p.categoriaNombre + '» (' + periodo(p) + ')?'"
-    textoConfirmar="Eliminar"
-    [peligro]="true"
-    [procesando]="eliminando()"
-    (confirmar)="confirmarEliminar()"
-    (cancelar)="cancelarEliminar()"
-  />
+<app-confirm-dialog titulo="Eliminar presupuesto"
+  [mensaje]="'¿Seguro que querés eliminar el presupuesto de «' + p.categoriaNombre + '» (' + periodo(p) + ')?'"
+  textoConfirmar="Eliminar" [peligro]="true" [procesando]="eliminando()" (confirmar)="confirmarEliminar()"
+  (cancelar)="cancelarEliminar()" />
 }
