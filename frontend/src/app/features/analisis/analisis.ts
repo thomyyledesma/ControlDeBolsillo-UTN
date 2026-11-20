@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { HttpError } from '../../core/http/http-error';
 import { AnalisisResponse } from '../../core/models';
+import { hoyISO } from '../../shared/utils/fechas';
 import { AnalisisClient } from './analisis-client';
 import { limpiarMarkdown, validarPeriodo } from './analisis-texto';
 
@@ -19,6 +20,7 @@ export class Analisis {
   private readonly client = inject(AnalisisClient);
 
   protected readonly alcance = signal<Alcance>('TODO');
+  protected readonly hoy = hoyISO();
   protected readonly desde = signal('');
   protected readonly hasta = signal('');
 

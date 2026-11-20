@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/auth/auth.service';
 import { HttpError } from '../../../core/http/http-error';
 
@@ -24,6 +25,10 @@ export class Register {
 
   protected readonly error = signal<string | null>(null);
   protected readonly enviando = signal(false);
+
+  constructor() {
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.error.set(null));
+  }
 
   protected enviar(): void {
     if (this.form.controls.password.hasError('minlength')) {

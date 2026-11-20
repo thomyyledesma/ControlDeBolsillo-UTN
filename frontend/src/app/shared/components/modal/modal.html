@@ -4,6 +4,9 @@
         @if (subtitulo()) {
         <p class="modal-sub">{{ subtitulo() }}</p>
         }
+        @if (error()) {
+        <div class="alerta-error" role="alert">{{ error() }}</div>
+        }
         <ng-content />
     </div>
 </div>

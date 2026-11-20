@@ -3,11 +3,17 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { forkJoin } from 'rxjs';
 
 import { HttpError } from '../../core/http/http-error';
-import { CuentaResponse, MetaAhorroRequest, MetaAhorroResponse, MovimientoMetaRequest } from '../../core/models';
+import {
+  CuentaResponse,
+  MetaAhorroRequest,
+  MetaAhorroResponse,
+  MovimientoMetaRequest,
+} from '../../core/models';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { Modal } from '../../shared/components/modal/modal';
 import { formatearFecha, formatearMoneda } from '../../shared/utils/format';
 import { MetasClient } from './metas-client';
+import { fechaNoPasada, hoyISO } from '../../shared/utils/fechas';
 
 type EstadoFiltro = 'TODAS' | 'CUMPLIDAS' | 'EN_PROGRESO';
 type AccionMeta = 'DEPOSITAR' | 'RETIRAR';
@@ -21,6 +27,7 @@ type AccionMeta = 'DEPOSITAR' | 'RETIRAR';
 export class Metas {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly client = inject(MetasClient);
+  protected readonly hoy = hoyISO();
 
   protected readonly metas = signal<MetaAhorroResponse[]>([]);
   protected readonly cuentas = signal<CuentaResponse[]>([]);
@@ -57,7 +64,7 @@ export class Metas {
   protected readonly formMeta = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     montoObjetivo: [0, [Validators.required, Validators.min(0.01)]],
-    fechaLimite: [''],
+    fechaLimite: ['', [fechaNoPasada]],
     cuentaId: [''],
   });
 
@@ -134,7 +141,9 @@ export class Metas {
       next: () => {
         this.guardandoMeta.set(false);
         this.mostrandoFormMeta.set(false);
-        this.exito.set(id === null ? 'Meta creada correctamente.' : 'Meta actualizada correctamente.');
+        this.exito.set(
+          id === null ? 'Meta creada correctamente.' : 'Meta actualizada correctamente.',
+        );
         this.cargarTodo();
       },
       error: (err: unknown) => {
@@ -221,11 +230,17 @@ export class Metas {
       next: () => {
         this.guardandoMovimiento.set(false);
         this.cerrarMovimiento();
-        this.exito.set(accion === 'DEPOSITAR' ? 'Depósito registrado correctamente.' : 'Retiro registrado correctamente.');
+        this.exito.set(
+          accion === 'DEPOSITAR'
+            ? 'Depósito registrado correctamente.'
+            : 'Retiro registrado correctamente.',
+        );
         this.cargarTodo();
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudo registrar la operación');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudo registrar la operación',
+        );
         this.guardandoMovimiento.set(false);
       },
     });
