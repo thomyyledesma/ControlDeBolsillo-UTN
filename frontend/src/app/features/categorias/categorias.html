@@ -10,8 +10,8 @@
   </div>
 </header>
 
-@if (error(); as msg) {
-<div class="alerta-error" role="alert">{{ msg }}</div>
+@if (error() && !mostrandoForm()) {
+<div class="alerta-error" role="alert">{{ error() }}</div>
 }
 
 <div class="filtro-campo" style="max-width: 220px; margin-bottom: 12px;">
@@ -24,73 +24,63 @@
 </div>
 
 @if (mostrandoForm()) {
-  <app-modal
-    [titulo]="editandoId() === null ? 'Nueva categoría' : 'Editar categoría'"
-    subtitulo="Completá nombre, tipo e ícono opcional."
-    (cerrar)="cerrarForm()"
-  >
-    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
-      <div class="campo">
-        <label for="nombre">Nombre</label>
-        <input
-          id="nombre"
-          type="text"
-          formControlName="nombre"
-          [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
-          [attr.aria-describedby]="form.controls.nombre.touched && form.controls.nombre.invalid ? 'nombre-error' : null"
-        />
-        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-          <small id="nombre-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 50 caracteres).</small>
+<app-modal [titulo]="editandoId() === null ? 'Nueva categoría' : 'Editar categoría'"
+  subtitulo="Completá nombre, tipo e ícono opcional." [error]="error()" (cerrar)="cerrarForm()">
+  <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <div class="campo">
+      <label for="nombre">Nombre</label>
+      <input id="nombre" type="text" formControlName="nombre"
+        [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
+        [attr.aria-describedby]="form.controls.nombre.touched && form.controls.nombre.invalid ? 'nombre-error' : null" />
+      @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small id="nombre-error" class="campo-error" role="alert">El nombre es obligatorio (entre 2 y 50
+        caracteres).</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="tipo">Tipo</label>
+      <select id="tipo" formControlName="tipo"
+        [attr.aria-invalid]="form.controls.tipo.touched && form.controls.tipo.invalid"
+        [attr.aria-describedby]="form.controls.tipo.touched && form.controls.tipo.invalid ? 'tipo-error' : null">
+        <option value="INGRESO">Ingreso</option>
+        <option value="EGRESO">Egreso</option>
+      </select>
+      @if (form.controls.tipo.touched && form.controls.tipo.invalid) {
+      <small id="tipo-error" class="campo-error" role="alert">Elegí el tipo de la categoría.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="icono">Ícono / Emoji</label>
+      <div class="icono-selector">
+        <button type="button" class="icono-boton" (click)="alternarSelector()" [attr.aria-expanded]="selectorAbierto()"
+          aria-label="Elegir un emoji">
+          <span class="icono-actual">{{ form.controls.icono.value || '🏷️' }}</span>
+          <span aria-hidden="true">▾</span>
+        </button>
+        <input type="text" id="icono" formControlName="icono" placeholder="Elegí uno o escribí el tuyo" maxlength="8" />
+      </div>
+
+      @if (selectorAbierto()) {
+      <div class="emoji-panel" role="listbox" aria-label="Emojis">
+        @for (e of emojis; track $index) {
+        <button type="button" class="emoji-opcion" (click)="seleccionarIcono(e)">{{ e }}</button>
         }
       </div>
+      }
+    </div>
 
-      <div class="campo">
-        <label for="tipo">Tipo</label>
-        <select
-          id="tipo"
-          formControlName="tipo"
-          [attr.aria-invalid]="form.controls.tipo.touched && form.controls.tipo.invalid"
-          [attr.aria-describedby]="form.controls.tipo.touched && form.controls.tipo.invalid ? 'tipo-error' : null"
-        >
-          <option value="INGRESO">Ingreso</option>
-          <option value="EGRESO">Egreso</option>
-        </select>
-        @if (form.controls.tipo.touched && form.controls.tipo.invalid) {
-          <small id="tipo-error" class="campo-error" role="alert">Elegí el tipo de la categoría.</small>
-        }
-      </div>
-
-      <div class="mb-3">
-        <label for="icono" class="form-label">Ícono / Emoji</label>
-        <input
-          type="text"
-          id="icono"
-          class="form-control"
-          formControlName="icono"
-          placeholder="Ej: 🛒 (opcional)"
-          maxlength="8"
-        />
-
-        <div class="d-flex align-items-center gap-2 mt-2">
-          <small class="text-muted">Sugeridos:</small>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🛒')">🛒</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🍔')">🍔</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('🚗')">🚗</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('💰')">💰</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="seleccionarIcono('💸')">💸</button>
-        </div>
-      </div>
-
-      <div class="modal-acciones">
-        <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">
-          Cancelar
-        </button>
-        <button class="btn btn-primario" type="submit" [disabled]="guardando()">
-          {{ editandoId() === null ? 'Crear categoría' : 'Guardar cambios' }}
-        </button>
-      </div>
-    </form>
-  </app-modal>
+    <div class="modal-acciones">
+      <button class="btn btn-secundario" type="button" (click)="cerrarForm()" [disabled]="guardando()">
+        Cancelar
+      </button>
+      <button class="btn btn-primario" type="submit" [disabled]="guardando()">
+        {{ editandoId() === null ? 'Crear categoría' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
 }
 
 @if (cargando()) {
@@ -98,37 +88,37 @@
 } @else if (!categorias().length) {
 <p>No tenés categorías todavía.</p>
 } @else {
-  <div class="categorias-grid">
-    @for (c of categorias(); track c.id) {
-      <article class="categoria-card">
-        <div class="categoria-main">
-          <span>{{ c.icono || '🏷️' }}</span>
-          <strong>{{ c.nombre }}</strong>
-          <span>— {{ c.tipo }}</span>
-        </div>
+<div class="categorias-grid">
+  @for (c of categorias(); track c.id) {
+  <article class="categoria-card">
+    <div class="categoria-cabecera">
+      <span class="categoria-icono" [class.ingreso]="c.tipo === 'INGRESO'">{{ c.icono || '🏷️' }}</span>
+      <div class="categoria-datos">
+        <strong class="categoria-nombre">{{ c.nombre }}</strong>
+        <span class="categoria-tipo" [class.ingreso]="c.tipo === 'INGRESO'">
+          {{ c.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso' }}
+        </span>
+      </div>
+    </div>
 
-        <div class="categoria-sub">Movimientos asociados: {{ c.cantidadMovimientos }}</div>
+    <div class="categoria-sub">
+      {{ c.cantidadMovimientos }} {{ c.cantidadMovimientos === 1 ? 'movimiento' : 'movimientos' }}
+    </div>
 
-        <div class="categoria-actions">
-          <a class="btn" [routerLink]="['/movimientos']" [queryParams]="{ categoriaId: c.id }">
-            Ver movimientos
-          </a>
-          <button class="btn" type="button" (click)="empezarEdicion(c)">Editar</button>
-          <button class="btn" type="button" (click)="pedirEliminar(c)">Eliminar</button>
-        </div>
-      </article>
-    }
-  </div>
+    <div class="categoria-actions">
+      <a class="btn-link" [routerLink]="['/movimientos']" [queryParams]="{ categoriaId: c.id }">
+        Ver movimientos
+      </a>
+      <button class="btn-link" type="button" (click)="empezarEdicion(c)">Editar</button>
+      <button class="btn-link peligro" type="button" (click)="pedirEliminar(c)">Eliminar</button>
+    </div>
+  </article>
+  }
+</div>
 }
 
 @if (categoriaAEliminar(); as c) {
-  <app-confirm-dialog
-    titulo="Eliminar categoría"
-    [mensaje]="'¿Seguro que querés eliminar «' + c.nombre + '»?'"
-    textoConfirmar="Eliminar"
-    [peligro]="true"
-    [procesando]="eliminando()"
-    (confirmar)="confirmarEliminar()"
-    (cancelar)="cancelarEliminar()"
-  />
+<app-confirm-dialog titulo="Eliminar categoría" [mensaje]="'¿Seguro que querés eliminar «' + c.nombre + '»?'"
+  textoConfirmar="Eliminar" [peligro]="true" [procesando]="eliminando()" (confirmar)="confirmarEliminar()"
+  (cancelar)="cancelarEliminar()" />
 }

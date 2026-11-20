@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpError } from '../../core/http/http-error';
-import { CategoriaResponse, TipoMovimiento, CategoriaRequest } from '../../core/models';
-import { CategoriasClient } from './categorias-client';
-import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpError } from '../../core/http/http-error';
+import { CategoriaRequest, CategoriaResponse, TipoMovimiento } from '../../core/models';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { Modal } from '../../shared/components/modal/modal';
+import { CategoriasClient } from './categorias-client';
 
 @Component({
   imports: [ReactiveFormsModule, RouterLink, Modal, ConfirmDialog],
@@ -24,6 +24,51 @@ export class Categorias {
   protected readonly error = signal<string | null>(null);
 
   protected readonly mostrandoForm = signal(false);
+  protected readonly selectorAbierto = signal(false);
+
+  protected readonly emojis = [
+    '🛒',
+    '🍔',
+    '🍕',
+    '☕',
+    '🍺',
+    '🛍️',
+    '👕',
+    '🏠',
+    '💡',
+    '🚰',
+    '📱',
+    '💻',
+    '🎮',
+    '🎬',
+    '🎵',
+    '📚',
+    '🎓',
+    '🚗',
+    '⛽',
+    '🚌',
+    '✈️',
+    '🏖️',
+    '🏥',
+    '💊',
+    '🐶',
+    '🎁',
+    '🏋️',
+    '⚽',
+    '🔧',
+    '🧾',
+    '💰',
+    '💸',
+    '💵',
+    '💳',
+    '🏦',
+    '📈',
+    '💼',
+    '🏷️',
+    '🎉',
+    '❤️',
+  ];
+
   protected readonly editandoId = signal<number | null>(null);
   protected readonly categoriaAEliminar = signal<CategoriaResponse | null>(null);
 
@@ -51,7 +96,9 @@ export class Categorias {
         this.cargando.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(err instanceof HttpError ? err.message : 'No se pudieron cargar las categorías');
+        this.error.set(
+          err instanceof HttpError ? err.message : 'No se pudieron cargar las categorías',
+        );
         this.cargando.set(false);
       },
     });
@@ -59,6 +106,7 @@ export class Categorias {
 
   protected abrirForm(): void {
     this.resetForm();
+    this.selectorAbierto.set(false);
     this.mostrandoForm.set(true);
   }
 
@@ -106,6 +154,7 @@ export class Categorias {
       tipo: c.tipo,
       icono: c.icono ?? '',
     });
+    this.selectorAbierto.set(false);
     this.mostrandoForm.set(true);
   }
 
@@ -149,6 +198,11 @@ export class Categorias {
 
   protected seleccionarIcono(emoji: string): void {
     this.form.patchValue({ icono: emoji });
+    this.selectorAbierto.set(false);
+  }
+
+  protected alternarSelector(): void {
+    this.selectorAbierto.update((abierto) => !abierto);
   }
 
   private resetForm(): void {
