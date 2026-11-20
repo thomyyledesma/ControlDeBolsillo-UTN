@@ -96,8 +96,14 @@ public class PresupuestoService {
 
         boolean cambioPeriodo = !p.getMes().equals(dto.getMes()) || !p.getAnio().equals(dto.getAnio());
         boolean cambioMesAnioOCategoria = cambioPeriodo || !p.getCategoria().getId().equals(categoria.getId());
-        if (cambioPeriodo) {
+                if (cambioPeriodo) {
             validarPeriodoNoPasado(dto.getMes(), dto.getAnio());
+        }
+        if (cambioMesAnioOCategoria) {
+            presupuestoRepository.findByUsuarioIdAndCategoriaIdAndMesAndAnio(usuarioId, dto.getCategoriaId(), dto.getMes(), dto.getAnio())
+                    .ifPresent(duplicado -> {
+                        throw new ReglaNegocioException("Ya existe un presupuesto para esa categoria en ese mes/año");
+                    });
         }
 
         p.setAnio(dto.getAnio());
